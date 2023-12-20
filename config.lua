@@ -54,3 +54,12 @@ Config.LawOfficeLocations =
         showblip = true
     },
 }
+
+Config.LawOfficeArmoury = {
+    [1] = { name = "weapon_revolver_cattleman",  price = 0, amount = 10, info = {}, type = "weapon", slot = 1, },
+    [2] = { name = "weapon_repeater_winchester", price = 0, amount = 10, info = {}, type = "weapon", slot = 2, },
+    [3] = { name = "weapon_melee_lantern",       price = 0, amount = 10, info = {}, type = "weapon", slot = 3, },
+    [4] = { name = "weapon_lasso_reinforced",    price = 0, amount = 10, info = {}, type = "weapon", slot = 4, },
+    [5] = { name = "ammo_revolver",              price = 0, amount = 50, info = {}, type = "item",   slot = 5, },
+    [6] = { name = "ammo_repeater",              price = 0, amount = 50, info = {}, type = "item",   slot = 6, },
+}

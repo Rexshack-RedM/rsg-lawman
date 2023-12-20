@@ -39,9 +39,34 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
                     event = 'rsg-bossmenu:client:mainmenu',
                     arrow = true
                 },
+                {
+                    title = 'Armoury',
+                    description = 'open the armoury',
+                    icon = 'fa-solid fa-person-rifle',
+                    event = 'rsg-lawman:client:openarmoury',
+                    arrow = true
+                },
             }
         })
         lib.showContext("lawoffice_mainmenu")
+    else
+        lib.notify({ title = 'Not Authorised', type = 'error', duration = 5000 })
+    end
+end)
+
+------------------------------------------
+-- law office armory
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:openarmoury')
+AddEventHandler('rsg-lawman:client:openarmoury', function()
+    local PlayerData = RSGCore.Functions.GetPlayerData()
+    local playerjob = PlayerData.job.name
+    if playerjob == 'vallaw' or playerjob == 'rholaw' or playerjob == 'blklaw' or playerjob == 'strlaw' or playerjob == 'stdenlaw' then
+        local ArmouryItems = {}
+        ArmouryItems.label = "Law Office Armory"
+        ArmouryItems.items = Config.LawOfficeArmoury
+        ArmouryItems.slots = #Config.LawOfficeArmoury
+        TriggerServerEvent("inventory:server:OpenInventory", "shop", "LawOffice_"..math.random(1, 99), ArmouryItems)
     else
         lib.notify({ title = 'Not Authorised', type = 'error', duration = 5000 })
     end
