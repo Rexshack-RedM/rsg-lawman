@@ -21,8 +21,17 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterNetEvent('rsg-lawman:client:mainmenu', function(job)
-    print(job)
+------------------------------------------
+-- main job menu
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
+    local PlayerData = RSGCore.Functions.GetPlayerData()
+    local playerjob = PlayerData.job.name
+    if playerjob == jobaccess then
+        print('you have access')
+    else
+        lib.notify({ title = 'Not Authorised', type = 'error', duration = 5000 })
+    end
 end)
 
 ------------------------------------------
