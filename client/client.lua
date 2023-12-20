@@ -28,7 +28,20 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
     local PlayerData = RSGCore.Functions.GetPlayerData()
     local playerjob = PlayerData.job.name
     if playerjob == jobaccess then
-        print('you have access')
+        lib.registerContext({
+            id = 'lawoffice_mainmenu',
+            title = 'Law Office Menu',
+            options = {
+                {
+                    title = 'Boss Menu',
+                    description = 'open the boss menu',
+                    icon = 'fa-solid fa-user-tie',
+                    event = 'rsg-bossmenu:client:mainmenu',
+                    arrow = true
+                },
+            }
+        })
+        lib.showContext("lawoffice_mainmenu")
     else
         lib.notify({ title = 'Not Authorised', type = 'error', duration = 5000 })
     end
