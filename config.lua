@@ -1,6 +1,6 @@
 Config = {}
 
 -- debug
-Config.Debug = true
+Config.Debug = false
 Config.AddGPSRoute = true
 Config.AlertTimer = 60
