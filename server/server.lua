@@ -38,6 +38,51 @@ RSGCore.Commands.Add("testalert", "send test alert", {}, false, function(source)
     TriggerClientEvent('rsg-lawman:client:lawmanAlert', src, playerCoords, text)
 end)
 
+--------------------------------------------------------------------------------------------------
+-- jail player command (law only)
+--------------------------------------------------------------------------------------------------
+RSGCore.Commands.Add("jail", "Jail Player (Law Only)", {{name = "id", help = "ID of Player"}, {name = "time", help = "Time they have to be in jail"}}, true, function(source, args)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    local playerjob = Player.PlayerData.job.name
+    for _, job in pairs(Config.LawJobs) do
+        if playerjob == job then
+            local playerId = tonumber(args[1])
+            local time = tonumber(args[2])
+            if time > 0 then
+                TriggerClientEvent('rsg-lawman:client:jailplayer', src, playerId, time)
+            else
+                TriggerClientEvent('ox_lib:notify', src, {title = 'Invalid Jail Time', description = 'jail time needs to be higher than 0', type = 'inform', duration = 5000 })
+            end
+        end
+    end
+end)
+
+--------------------------------------------------------------------------------------------------
+-- jail player
+--------------------------------------------------------------------------------------------------
+RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    local playerjob = Player.PlayerData.job.name
+    local OtherPlayer = RSGCore.Functions.GetPlayer(playerId)
+    local currentDate = os.date("*t")
+    if currentDate.day == 31 then
+        currentDate.day = 30
+    end
+
+    for _, job in pairs(Config.LawJobs) do
+        if playerjob == job then
+            if OtherPlayer then
+                OtherPlayer.Functions.SetMetaData('injail', time)
+                OtherPlayer.Functions.SetMetaData('criminalrecord', { ['hasRecord'] = true, ['date'] = currentDate })
+                TriggerClientEvent('rsg-lawman:client:sendtojail', OtherPlayer.PlayerData.source, time)
+                TriggerClientEvent('ox_lib:notify', src, {title = 'Sent to Jail for '..time, type = 'success', duration = 5000 })
+            end
+        end
+    end
+end)
+
 -----------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------

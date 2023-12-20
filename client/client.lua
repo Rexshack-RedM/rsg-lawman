@@ -73,6 +73,22 @@ AddEventHandler('rsg-lawman:client:openarmoury', function()
 end)
 
 ------------------------------------------
+-- send player to jail
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:jailplayer', function(playerId, time)
+    TriggerServerEvent('rsg-lawman:server:jailplayer', playerId, tonumber(time))
+end)
+
+RegisterNetEvent('rsg-lawman:client:sendtojail', function(time)
+    --TriggerServerEvent("police:server:SetHandcuffStatus", false)
+    --isHandcuffed = false
+    --isEscorted = false
+    --ClearPedTasks(PlayerPedId())
+    --DetachEntity(PlayerPedId(), true, false)
+    TriggerEvent('rsg-prison:client:Enter', time)
+end)
+
+------------------------------------------
 -- lawman alert
 ------------------------------------------
 RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
