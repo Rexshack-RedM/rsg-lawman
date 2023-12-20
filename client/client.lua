@@ -2,6 +2,29 @@ local RSGCore = exports['rsg-core']:GetCoreObject()
 local blipEntries = {}
 local timer = Config.AlertTimer
 
+-------------------------------------------------------------------------------------------
+-- prompts and blips if needed
+-------------------------------------------------------------------------------------------
+Citizen.CreateThread(function()
+    for _, v in pairs(Config.LawOfficeLocations) do
+        exports['rsg-core']:createPrompt(v.prompt, v.coords, RSGCore.Shared.Keybinds[Config.Keybind], 'Open Menu', {
+            type = 'client',
+            event = 'rsg-lawman:client:mainmenu',
+            args = { v.jobaccess },
+        })
+        if v.showblip == true then
+            local LawMenuBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
+            SetBlipSprite(LawMenuBlip,  joaat(Config.LawOfficeBlip.blipSprite), true)
+            SetBlipScale(Config.LawOfficeBlip.blipScale, 0.2)
+            Citizen.InvokeNative(0x9CB1A1623062F402, LawMenuBlip, Config.LawOfficeBlip.blipName)
+        end
+    end
+end)
+
+RegisterNetEvent('rsg-lawman:client:mainmenu', function(job)
+    print(job)
+end)
+
 ------------------------------------------
 -- lawman alert
 ------------------------------------------
