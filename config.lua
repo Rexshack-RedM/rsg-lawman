@@ -55,6 +55,8 @@ Config.LawOfficeLocations =
     },
 }
 
+Config.LawJobs = { 'vallaw' , 'rholaw', 'blklaw', 'strlaw', 'stdenlaw' }
+
 Config.LawOfficeArmoury = {
     [1] = { name = "weapon_revolver_cattleman",  price = 0, amount = 10, info = {}, type = "weapon", slot = 1, },
     [2] = { name = "weapon_repeater_winchester", price = 0, amount = 10, info = {}, type = "weapon", slot = 2, },
