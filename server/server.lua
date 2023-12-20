@@ -31,6 +31,12 @@ end
 
 -----------------------------------------------------------------------
 
+RSGCore.Commands.Add("testalert", "send test alert", {}, false, function(source)
+    local src = source
+    local playerCoords = GetEntityCoords(GetPlayerPed(source))
+    local text = "testing"
+    TriggerClientEvent('rsg-lawman:client:lawmanAlert', src, playerCoords, text)
+end)
 
 -----------------------------------------------------------------------
 
