@@ -1,6 +1,6 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
 local blipEntries = {}
-local timer = 0
+local timer = Config.AlertTimer
 
 ------------------------------------------
 -- lawman alert
@@ -63,7 +63,7 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
                     end
                 end
 
-                timer = Config.DeathTimer
+                timer = Config.AlertTimer
 
                 if Config.AddGPSRoute then
                     ClearGpsMultiRoute(coords)
