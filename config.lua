@@ -14,6 +14,9 @@ Config.LawOfficeBlip = {
 Config.AddGPSRoute = true
 Config.AlertTimer = 60
 Config.Keybind = 'J'
+Config.StorageMaxWeight = 4000000
+Config.StorageMaxSlots = 48
+Config.TrashCollection = 1 -- mins
 
 -- Law Office Prompt Locations
 Config.LawOfficeLocations =

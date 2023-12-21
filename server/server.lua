@@ -83,6 +83,27 @@ RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
     end
 end)
 
+--------------------------------------------------------------------------------------------------
+-- lawman tash can collection system
+--------------------------------------------------------------------------------------------------
+UpkeepInterval = function()
+    local result = MySQL.query.await('SELECT * FROM player_props')
+
+    if not result then goto continue end
+
+    MySQL.update('UPDATE stashitems SET items = ? WHERE stash = ?',{ '[]', 'lawtrashcan' })
+
+    ::continue::
+
+    if Config.Debug then
+        print('law trash removal complete')
+    end
+
+    SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
+end
+
+SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
+
 -----------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------

@@ -46,6 +46,13 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
                     event = 'rsg-lawman:client:openarmoury',
                     arrow = true
                 },
+                {
+                    title = 'Trash Can',
+                    description = 'for items that are no longer needed',
+                    icon = 'fa-solid fa-trash-can',
+                    event = 'rsg-lawman:client:opentrash',
+                    arrow = true
+                },
             }
         })
         lib.showContext("lawoffice_mainmenu")
@@ -159,4 +166,18 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
             end
         end
     end)
+end)
+
+------------------------------------------
+-- trash can
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:opentrash', function()
+    local PlayerData = RSGCore.Functions.GetPlayerData()
+    local playerjob = PlayerData.job.name
+    for _, job in pairs(Config.LawJobs) do
+        if job == playerjob then
+            TriggerServerEvent("inventory:server:OpenInventory", "stash", 'lawtrashcan', { maxweight = Config.StorageMaxWeight, slots = Config.StorageMaxSlots })
+            TriggerEvent("inventory:client:SetCurrentStash", 'lawtrashcan')
+        end
+    end
 end)
