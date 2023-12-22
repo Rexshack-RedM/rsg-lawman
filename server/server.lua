@@ -87,17 +87,25 @@ end)
 -- lawman tash can collection system
 --------------------------------------------------------------------------------------------------
 UpkeepInterval = function()
-    local result = MySQL.query.await('SELECT * FROM player_props')
+    local result = MySQL.query.await('SELECT * FROM stashitems')
 
-    if not result then goto continue end
+    local stash = result[1].stash
+    local items = result[1].items
+
+    if stash == 'lawtrashcan' and items == '[]' then 
+        if Config.Debug then
+            print('trash already taken out')
+        end
+        goto continue
+    end
 
     MySQL.update('UPDATE stashitems SET items = ? WHERE stash = ?',{ '[]', 'lawtrashcan' })
-
-    ::continue::
 
     if Config.Debug then
         print('law trash removal complete')
     end
+
+    ::continue::
 
     SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
 end
