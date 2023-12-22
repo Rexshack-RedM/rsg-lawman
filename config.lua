@@ -65,6 +65,7 @@ Config.LawOfficeArmoury = {
     [2] = { name = "weapon_repeater_winchester", price = 0, amount = 10, info = {}, type = "weapon", slot = 2, },
     [3] = { name = "weapon_melee_lantern",       price = 0, amount = 10, info = {}, type = "weapon", slot = 3, },
     [4] = { name = "weapon_lasso_reinforced",    price = 0, amount = 10, info = {}, type = "weapon", slot = 4, },
-    [5] = { name = "ammo_revolver",              price = 0, amount = 50, info = {}, type = "item",   slot = 5, },
-    [6] = { name = "ammo_repeater",              price = 0, amount = 50, info = {}, type = "item",   slot = 6, },
+    [5] = { name = "handcuffs",                  price = 0, amount = 10, info = {}, type = "item",   slot = 5, },
+    [6] = { name = "ammo_revolver",              price = 0, amount = 50, info = {}, type = "item",   slot = 6, },
+    [7] = { name = "ammo_repeater",              price = 0, amount = 50, info = {}, type = "item",   slot = 7, },
 }
