@@ -87,11 +87,11 @@ RegisterNetEvent('rsg-lawman:client:jailplayer', function(playerId, time)
 end)
 
 RegisterNetEvent('rsg-lawman:client:sendtojail', function(time)
-    --TriggerServerEvent("police:server:SetHandcuffStatus", false)
-    --isHandcuffed = false
-    --isEscorted = false
-    --ClearPedTasks(PlayerPedId())
-    --DetachEntity(PlayerPedId(), true, false)
+    TriggerServerEvent('rsg-lawman:server:sethandcuffstatus', false)
+    isHandcuffed = false
+    isEscorted = false
+    ClearPedTasks(PlayerPedId())
+    DetachEntity(PlayerPedId(), true, false)
     TriggerEvent('rsg-prison:client:Enter', time)
 end)
 
@@ -180,4 +180,162 @@ RegisterNetEvent('rsg-lawman:client:opentrash', function()
             TriggerEvent("inventory:client:SetCurrentStash", 'lawtrashcan')
         end
     end
+end)
+
+------------------------------------------
+-- handcuff player
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:cuffplayer', function()
+    if not IsPedRagdoll(PlayerPedId()) then
+        local player, distance = RSGCore.Functions.GetClosestPlayer()
+        if player ~= -1 and distance < 1.5 then
+            local result = RSGCore.Functions.HasItem('handcuffs')
+            if result then
+                local playerId = GetPlayerServerId(player)
+                if not IsPedInAnyVehicle(GetPlayerPed(player)) and not IsPedInAnyVehicle(PlayerPedId()) then
+                    TriggerServerEvent('rsg-lawman:server:cuffplayer', playerId, false)
+                    -- HandCuffAnimation()
+                else
+                    lib.notify({ title = 'Failed', description = 'you can\'t cuff someone in a vehicle', type = 'error', duration = 5000 })
+                end
+            else
+                lib.notify({ title = 'Handcuffs Needed', description = 'you don\'t have handcuffs on you', type = 'error', duration = 5000 })
+            end
+        else
+            lib.notify({ title = 'No one nearby!', type = 'error', duration = 5000 })
+        end
+    else
+        Wait(2000)
+    end
+end)
+
+------------------------------------------
+-- do handcuff player
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:getcuffed', function(playerId, isSoftcuff)
+    local ped = PlayerPedId()
+    if not isHandcuffed then
+        isHandcuffed = true
+        TriggerServerEvent('rsg-lawman:server:sethandcuffstatus', true)
+        ClearPedTasksImmediately(ped)
+        if Citizen.InvokeNative(0x8425C5F057012DAB, ped) ~= joaat("WEAPON_UNARMED") then
+            SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
+        end
+        if not isSoftcuff then
+            cuffType = 16
+            lib.notify({ title = 'You are cuffed!', type = 'inform', duration = 5000 })
+        else
+            cuffType = 49
+            lib.notify({ title = 'You are cuffed!', description = 'but you can walk', type = 'inform', duration = 5000 })
+        end
+    else
+        isHandcuffed = false
+        isEscorted = false
+        TriggerEvent('hospital:client:isEscorted', isEscorted)
+        DetachEntity(ped, true, false)
+        TriggerServerEvent('rsg-lawman:server:sethandcuffstatus', false)
+        ClearPedTasksImmediately(ped)
+        SetEnableHandcuffs(ped, false)
+        DisablePlayerFiring(ped, false)
+        SetPedCanPlayGestureAnims(ped, true)
+        DisplayRadar(true)
+        if cuffType == 49 then
+            FreezeEntityPosition(ped, false)
+        end
+        -- TriggerServerEvent("InteractSound_SV:PlayOnSource", "Uncuff", 0.2)
+        lib.notify({ title = 'You are uncuffed!', type = 'inform', duration = 5000 })
+    end
+end)
+
+------------------------------------------
+-- handcuff player loop
+------------------------------------------
+CreateThread(function()
+    local ped = PlayerPedId()
+    while true do
+        Wait(1)
+        if isEscorted or isHandcuffed then
+            DisableControlAction(0, 0x295175BF, true) -- Disable break
+            DisableControlAction(0, 0x6E9734E8, true) -- Disable suicide
+            DisableControlAction(0, 0xD8F73058, true) -- Disable aiminair
+            DisableControlAction(0, 0x4CC0E2FE, true) -- B key
+            DisableControlAction(0, 0xDE794E3E, true) -- Cover
+            DisableControlAction(0, 0x06052D11, true) -- Cover
+            DisableControlAction(0, 0x5966D52A, true) -- Cover
+            DisableControlAction(0, 0xCEFD9220, true) -- Cover
+            DisableControlAction(0, 0xC75C27B0, true) -- Cover
+            DisableControlAction(0, 0x41AC83D1, true) -- Cover
+            DisableControlAction(0, 0xADEAF48C, true) -- Cover
+            DisableControlAction(0, 0x9D2AEA88, true) -- Cover
+            DisableControlAction(0, 0xE474F150, true) -- Cover
+            DisableControlAction(0, 0xB2F377E8, true) -- Attack
+            DisableControlAction(0, 0xC1989F95, true) -- Attack 2
+            DisableControlAction(0, 0x07CE1E61, true) -- Melee Attack 1
+            DisableControlAction(0, 0xF84FA74F, true) -- MOUSE2
+            DisableControlAction(0, 0xCEE12B50, true) -- MOUSE3
+            DisableControlAction(0, 0x8FFC75D6, true) -- Shift
+            DisableControlAction(0, 0xD9D0E1C0, true) -- SPACE
+            DisableControlAction(0, 0xF3830D8E, true) -- J
+            DisableControlAction(0, 0x80F28E95, true) -- L
+            DisableControlAction(0, 0xDB096B85, true) -- CTRL
+            DisableControlAction(0, 0xE30CD707, true) -- R
+        end
+
+        if cuffType == 16 and isHandcuffed then  -- soft cuff
+            SetEnableHandcuffs(ped, true)
+            DisablePlayerFiring(ped, true)
+            SetPedCanPlayGestureAnims(ped, false)
+            DisplayRadar(false)
+        end
+
+        if cuffType == 49 and isHandcuffed then  -- hard cuff
+            SetEnableHandcuffs(ped, true)
+            DisablePlayerFiring(ped, true)
+            SetPedCanPlayGestureAnims(ped, false)
+            DisplayRadar(false)
+            FreezeEntityPosition(ped, true)
+        end
+
+        if not isHandcuffed and not isEscorted then
+            Wait(2000)
+        end
+    end
+end)
+
+------------------------------------------
+-- escort player
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:escortplayer', function()
+    local player, distance = RSGCore.Functions.GetClosestPlayer()
+    if player ~= -1 and distance < 2.5 then
+        local playerId = GetPlayerServerId(player)
+        if not isHandcuffed and not isEscorted then
+            TriggerServerEvent("rsg-lawman:server:escortplayer", playerId)
+        end
+    else
+        lib.notify({ title = 'No one nearby!', type = 'error', duration = 5000 })
+    end
+end)
+
+------------------------------------------
+-- do escort player
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:getescorted', function(playerId)
+    local ped = PlayerPedId()
+    RSGCore.Functions.GetPlayerData(function(PlayerData)
+        if PlayerData.metadata["isdead"] or isHandcuffed then
+            if not isEscorted then
+                isEscorted = true
+                TriggerServerEvent('rsg-lawman:server:setescortstatus', true)
+                draggerId = playerId
+                local dragger = GetPlayerPed(GetPlayerFromServerId(playerId))
+                SetEntityCoords(ped, GetOffsetFromEntityInWorldCoords(dragger, 0.0, 0.45, 0.0))
+                AttachEntityToEntity(ped, dragger, 11816, 0.45, 0.45, 0.0, 0.0, 0.0, 0.0, false, false, false, false, 2, true)
+            else
+                isEscorted = false
+                TriggerServerEvent('rsg-lawman:server:setescortstatus', false)
+                DetachEntity(ped, true, false)
+            end
+        end
+    end)
 end)

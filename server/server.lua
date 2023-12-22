@@ -112,7 +112,107 @@ end
 
 SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
 
------------------------------------------------------------------------
+------------------------------------------
+-- handcuff player command
+------------------------------------------
+RSGCore.Commands.Add("cuff", "Cuff Player (Law Only)", {}, false, function(source, args)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    local Player = RSGCore.Functions.GetPlayer(src)
+    local playerjob = Player.PlayerData.job.name
+    for _, job in pairs(Config.LawJobs) do
+        if playerjob == job then
+            TriggerClientEvent('rsg-lawman:client:cuffplayer', src)
+        end
+    end
+end)
+
+------------------------------------------
+-- handcuff player use
+------------------------------------------
+RSGCore.Functions.CreateUseableItem("handcuffs", function(source, item)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    if Player.Functions.GetItemByName(item.name) then
+        TriggerClientEvent('rsg-lawman:client:cuffplayer', src)
+    end
+end)
+
+------------------------------------------
+-- handcuff player
+------------------------------------------
+RegisterNetEvent('rsg-lawman:server:cuffplayer', function(playerId, isSoftcuff)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    local playerjob = Player.PlayerData.job.name
+    for _, job in pairs(Config.LawJobs) do
+        if playerjob == job then
+            local CuffedPlayer = RSGCore.Functions.GetPlayer(playerId)
+            if CuffedPlayer then
+                if Player.Functions.GetItemByName('handcuffs') then
+                    TriggerClientEvent('rsg-lawman:client:getcuffed', CuffedPlayer.PlayerData.source, Player.PlayerData.source, isSoftcuff)
+                end
+            end
+        end
+    end
+end)
+
+------------------------------------------
+-- set handcuff status
+------------------------------------------
+RegisterNetEvent('rsg-lawman:server:sethandcuffstatus', function(isHandcuffed)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    if Player then
+        Player.Functions.SetMetaData("ishandcuffed", isHandcuffed)
+    end
+end)
+
+------------------------------------------
+-- escort player command
+------------------------------------------
+RSGCore.Commands.Add("escort", "Escort Player (Law Only)", {}, false, function(source, args)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    local playerjob = Player.PlayerData.job.name
+    for _, job in pairs(Config.LawJobs) do
+        if playerjob == job then
+            TriggerClientEvent('rsg-lawman:client:escortplayer', src)
+        end
+    end
+end)
+
+------------------------------------------
+-- set escort status
+------------------------------------------
+RegisterNetEvent('rsg-lawman:server:setescortstatus', function(isEscorted)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    if Player then
+        Player.Functions.SetMetaData("isescorted", isEscorted)
+    end
+end)
+
+------------------------------------------
+-- escort player
+------------------------------------------
+RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(source)
+    local playerjob = Player.PlayerData.job.name
+    for _, job in pairs(Config.LawJobs) do
+        if playerjob == job then
+            local EscortPlayer = RSGCore.Functions.GetPlayer(playerId)
+            if EscortPlayer then
+                if (EscortPlayer.PlayerData.metadata["ishandcuffed"] or EscortPlayer.PlayerData.metadata["isdead"]) then
+                    TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source, Player.PlayerData.source)
+                else
+                    TriggerClientEvent('RSGCore:Notify', src, 'Player isn\'t cuffed or dead', 'error')
+                end
+            end
+        end
+    end
+end)
 
 --------------------------------------------------------------------------------------------------
 -- start version check
