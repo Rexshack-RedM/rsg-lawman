@@ -118,7 +118,6 @@ SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
 RSGCore.Commands.Add("cuff", "Cuff Player (Law Only)", {}, false, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-    local Player = RSGCore.Functions.GetPlayer(src)
     local playerjob = Player.PlayerData.job.name
     for _, job in pairs(Config.LawJobs) do
         if playerjob == job then
