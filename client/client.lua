@@ -40,6 +40,13 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
                     arrow = true
                 },
                 {
+                    title = 'Toggle Duty',
+                    icon = 'fa-solid fa-shield-heart',
+                    description = '',
+                    event = 'rsg-lawman:client:ToggleDuty',
+                    arrow = true
+                },
+                {
                     title = 'Armoury',
                     description = 'open the armoury',
                     icon = 'fa-solid fa-person-rifle',
@@ -300,6 +307,18 @@ CreateThread(function()
             Wait(2000)
         end
     end
+end)
+
+------------------------------------------
+-- Toggle On-Duty
+------------------------------------------
+AddEventHandler('rsg-lawman:client:ToggleDuty', function()
+    RSGCore.Functions.GetPlayerData(function(PlayerData)
+        if PlayerData.job.type == "leo" then
+            TriggerServerEvent("RSGCore:ToggleDuty")
+            return
+        end
+    end)
 end)
 
 ------------------------------------------
