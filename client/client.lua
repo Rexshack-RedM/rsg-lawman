@@ -197,6 +197,7 @@ RegisterNetEvent('rsg-lawman:client:cuffplayer', function()
                 local playerId = GetPlayerServerId(player)
                 if not IsPedInAnyVehicle(GetPlayerPed(player)) and not IsPedInAnyVehicle(PlayerPedId()) then
                     TriggerServerEvent('rsg-lawman:server:cuffplayer', playerId, false)
+                    TriggerServerEvent('InteractSound_SV:PlayWithinDistance', 5, 'cuff', 0.6)
                     -- HandCuffAnimation()
                 else
                     lib.notify({ title = 'Failed', description = 'you can\'t cuff someone in a vehicle', type = 'error', duration = 5000 })
