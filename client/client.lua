@@ -220,6 +220,7 @@ RegisterNetEvent('rsg-lawman:client:getcuffed', function(playerId, isSoftcuff)
     if not isHandcuffed then
         isHandcuffed = true
         TriggerServerEvent('rsg-lawman:server:sethandcuffstatus', true)
+        TriggerServerEvent('InteractSound_SV:PlayWithinDistance', 5, 'cuff', 0.6)
         ClearPedTasksImmediately(ped)
         if Citizen.InvokeNative(0x8425C5F057012DAB, ped) ~= joaat("WEAPON_UNARMED") then
             SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, true)
@@ -237,6 +238,7 @@ RegisterNetEvent('rsg-lawman:client:getcuffed', function(playerId, isSoftcuff)
         TriggerEvent('hospital:client:isEscorted', isEscorted)
         DetachEntity(ped, true, false)
         TriggerServerEvent('rsg-lawman:server:sethandcuffstatus', false)
+        TriggerServerEvent('InteractSound_SV:PlayWithinDistance', 5, 'uncuff', 0.6)
         ClearPedTasksImmediately(ped)
         SetEnableHandcuffs(ped, false)
         DisablePlayerFiring(ped, false)
