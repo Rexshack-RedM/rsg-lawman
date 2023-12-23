@@ -44,9 +44,7 @@ end)
 RSGCore.Commands.Add("jail", "Jail Player (Law Only)", {{name = "id", help = "ID of Player"}, {name = "time", help = "Time they have to be in jail"}}, true, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-    local playerjob = Player.PlayerData.job.name
-    for _, job in pairs(Config.LawJobs) do
-        if playerjob == job then
+        if Player.PlayerData.job.type == "leo" then
             local playerId = tonumber(args[1])
             local time = tonumber(args[2])
             if time > 0 then
@@ -55,7 +53,6 @@ RSGCore.Commands.Add("jail", "Jail Player (Law Only)", {{name = "id", help = "ID
                 TriggerClientEvent('ox_lib:notify', src, {title = 'Invalid Jail Time', description = 'jail time needs to be higher than 0', type = 'inform', duration = 5000 })
             end
         end
-    end
 end)
 
 --------------------------------------------------------------------------------------------------
@@ -64,15 +61,13 @@ end)
 RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-    local playerjob = Player.PlayerData.job.name
     local OtherPlayer = RSGCore.Functions.GetPlayer(playerId)
     local currentDate = os.date("*t")
     if currentDate.day == 31 then
         currentDate.day = 30
     end
 
-    for _, job in pairs(Config.LawJobs) do
-        if playerjob == job then
+        if Player.PlayerData.job.type == "leo" then
             if OtherPlayer then
                 OtherPlayer.Functions.SetMetaData('injail', time)
                 OtherPlayer.Functions.SetMetaData('criminalrecord', { ['hasRecord'] = true, ['date'] = currentDate })
@@ -80,7 +75,6 @@ RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
                 TriggerClientEvent('ox_lib:notify', src, {title = 'Sent to Jail for '..time, type = 'success', duration = 5000 })
             end
         end
-    end
 end)
 
 --------------------------------------------------------------------------------------------------
@@ -118,12 +112,9 @@ SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
 RSGCore.Commands.Add("cuff", "Cuff Player (Law Only)", {}, false, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-    local playerjob = Player.PlayerData.job.name
-    for _, job in pairs(Config.LawJobs) do
-        if playerjob == job then
+        if Player.PlayerData.job.type == "leo" then
             TriggerClientEvent('rsg-lawman:client:cuffplayer', src)
         end
-    end
 end)
 
 ------------------------------------------
@@ -143,9 +134,7 @@ end)
 RegisterNetEvent('rsg-lawman:server:cuffplayer', function(playerId, isSoftcuff)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-    local playerjob = Player.PlayerData.job.name
-    for _, job in pairs(Config.LawJobs) do
-        if playerjob == job then
+        if Player.PlayerData.job.type == "leo" then
             local CuffedPlayer = RSGCore.Functions.GetPlayer(playerId)
             if CuffedPlayer then
                 if Player.Functions.GetItemByName('handcuffs') then
@@ -153,7 +142,6 @@ RegisterNetEvent('rsg-lawman:server:cuffplayer', function(playerId, isSoftcuff)
                 end
             end
         end
-    end
 end)
 
 ------------------------------------------
@@ -173,12 +161,9 @@ end)
 RSGCore.Commands.Add("escort", "Escort Player (Law Only)", {}, false, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-    local playerjob = Player.PlayerData.job.name
-    for _, job in pairs(Config.LawJobs) do
-        if playerjob == job then
+        if Player.PlayerData.job.type == "leo" then
             TriggerClientEvent('rsg-lawman:client:escortplayer', src)
         end
-    end
 end)
 
 ------------------------------------------
@@ -198,9 +183,7 @@ end)
 RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(source)
-    local playerjob = Player.PlayerData.job.name
-    for _, job in pairs(Config.LawJobs) do
-        if playerjob == job then
+        if Player.PlayerData.job.type == "leo" then
             local EscortPlayer = RSGCore.Functions.GetPlayer(playerId)
             if EscortPlayer then
                 if (EscortPlayer.PlayerData.metadata["ishandcuffed"] or EscortPlayer.PlayerData.metadata["isdead"]) then
@@ -210,7 +193,6 @@ RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
                 end
             end
         end
-    end
 end)
 
 --------------------------------------------------------------------------------------------------
