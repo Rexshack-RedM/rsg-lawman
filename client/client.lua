@@ -73,17 +73,15 @@ end)
 ------------------------------------------
 RegisterNetEvent('rsg-lawman:client:openarmoury')
 AddEventHandler('rsg-lawman:client:openarmoury', function()
-    local PlayerData = RSGCore.Functions.GetPlayerData()
-    local playerjob = PlayerData.job.name
-    for _, job in pairs(Config.LawJobs) do
-        if job == playerjob then
+    RSGCore.Functions.GetPlayerData(function(PlayerData)
+        if PlayerData.job.type == "leo" then
             local ArmouryItems = {}
             ArmouryItems.label = "Law Office Armoury"
             ArmouryItems.items = Config.LawOfficeArmoury
             ArmouryItems.slots = #Config.LawOfficeArmoury
             TriggerServerEvent("inventory:server:OpenInventory", "shop", "LawOffice_"..math.random(1, 99), ArmouryItems)
         end
-    end
+    end)
 end)
 
 ------------------------------------------
@@ -179,14 +177,12 @@ end)
 -- trash can
 ------------------------------------------
 RegisterNetEvent('rsg-lawman:client:opentrash', function()
-    local PlayerData = RSGCore.Functions.GetPlayerData()
-    local playerjob = PlayerData.job.name
-    for _, job in pairs(Config.LawJobs) do
-        if job == playerjob then
+    RSGCore.Functions.GetPlayerData(function(PlayerData)
+        if PlayerData.job.type == "leo" then
             TriggerServerEvent("inventory:server:OpenInventory", "stash", 'lawtrashcan', { maxweight = Config.StorageMaxWeight, slots = Config.StorageMaxSlots })
             TriggerEvent("inventory:client:SetCurrentStash", 'lawtrashcan')
         end
-    end
+    end)
 end)
 
 ------------------------------------------
