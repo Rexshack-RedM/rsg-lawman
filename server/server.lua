@@ -39,6 +39,23 @@ RSGCore.Commands.Add("testalert", "send test alert", {}, false, function(source)
 end)
 
 --------------------------------------------------------------------------------------------------
+-- lawman alert
+--------------------------------------------------------------------------------------------------
+
+RegisterNetEvent('rsg-lawman:server:lawmanAlert', function(text)
+    local src = source
+    local ped = GetPlayerPed(src)
+    local coords = GetEntityCoords(ped)
+    local players = RSGCore.Functions.GetRSGPlayers()
+    for k,v in pairs(players) do
+        if v.PlayerData.job.type == 'leo' and v.PlayerData.job.onduty then
+            local alertData = {title = 'New Call', coords = {coords.x, coords.y, coords.z}, description = text}
+            TriggerClientEvent('rsg-lawman:client:lawmanAlert', v.PlayerData.source, coords, text)
+        end
+    end
+end)
+
+--------------------------------------------------------------------------------------------------
 -- jail player command (law only)
 --------------------------------------------------------------------------------------------------
 RSGCore.Commands.Add("jail", "Jail Player (Law Only)", {{name = "id", help = "ID of Player"}, {name = "time", help = "Time they have to be in jail"}}, true, function(source, args)
@@ -105,6 +122,21 @@ UpkeepInterval = function()
 end
 
 SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
+
+------------------------------------------
+-- get law
+------------------------------------------
+
+RSGCore.Functions.CreateCallback('lawman:GetLaw', function(source, cb)
+    local amount = 0
+    local players = RSGCore.Functions.GetRSGPlayers()
+    for k, v in pairs(players) do
+        if v.PlayerData.job.type == 'leo' and v.PlayerData.job.onduty then
+            amount = amount + 1
+        end
+    end
+    cb(amount)
+end)
 
 ------------------------------------------
 -- handcuff player command
