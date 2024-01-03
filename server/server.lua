@@ -220,7 +220,7 @@ RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
                 if (EscortPlayer.PlayerData.metadata["ishandcuffed"] or EscortPlayer.PlayerData.metadata["isdead"]) then
                     TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source, Player.PlayerData.source)
                 else
-                    TriggerClientEvent('RSGCore:Notify', src, 'Player isn\'t cuffed or dead', 'error')
+                    lib.notify({ title = 'Player isn\'t cuffed or dead', type = 'error', duration = 5000 })
                 end
             end
         end
