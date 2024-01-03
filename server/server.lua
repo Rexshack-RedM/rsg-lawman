@@ -38,6 +38,20 @@ RSGCore.Commands.Add("testalert", "send test alert", {}, false, function(source)
     TriggerClientEvent('rsg-lawman:client:lawmanAlert', src, playerCoords, text)
 end)
 
+------------------------------------------
+-- law on-duty callback
+------------------------------------------
+RSGCore.Functions.CreateCallback('rsg-lawman:server:getlaw', function(source, cb)
+    local lawcount = 0
+    local players = RSGCore.Functions.GetRSGPlayers()
+    for k, v in pairs(players) do
+        if v.PlayerData.job.type == 'leo' and v.PlayerData.job.onduty then
+            lawcount = lawcount + 1
+        end
+    end
+    cb(lawcount)
+end)
+
 --------------------------------------------------------------------------------------------------
 -- jail player command (law only)
 --------------------------------------------------------------------------------------------------
