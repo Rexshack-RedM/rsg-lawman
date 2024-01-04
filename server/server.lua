@@ -53,6 +53,23 @@ RSGCore.Functions.CreateCallback('rsg-lawman:server:getlaw', function(source, cb
 end)
 
 --------------------------------------------------------------------------------------------------
+-- lawman alert
+--------------------------------------------------------------------------------------------------
+
+RegisterNetEvent('rsg-lawman:server:lawmanAlert', function(text)
+    local src = source
+    local ped = GetPlayerPed(src)
+    local coords = GetEntityCoords(ped)
+    local players = RSGCore.Functions.GetRSGPlayers()
+
+    for _, v in pairs(players) do
+        if v.PlayerData.job.type == 'leo' and v.PlayerData.job.onduty then
+            TriggerClientEvent('rsg-lawman:client:lawmanAlert', v.PlayerData.source, coords, text)
+        end
+    end
+end)
+
+--------------------------------------------------------------------------------------------------
 -- jail player command (law only)
 --------------------------------------------------------------------------------------------------
 RSGCore.Commands.Add("jail", "Jail Player (Law Only)", {{name = "id", help = "ID of Player"}, {name = "time", help = "Time they have to be in jail"}}, true, function(source, args)
@@ -203,7 +220,7 @@ RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
                 if (EscortPlayer.PlayerData.metadata["ishandcuffed"] or EscortPlayer.PlayerData.metadata["isdead"]) then
                     TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source, Player.PlayerData.source)
                 else
-                    TriggerClientEvent('RSGCore:Notify', src, 'Player isn\'t cuffed or dead', 'error')
+                    lib.notify({ title = 'Player isn\'t cuffed or dead', type = 'error', duration = 5000 })
                 end
             end
         end
