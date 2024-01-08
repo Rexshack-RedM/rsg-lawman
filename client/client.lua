@@ -107,7 +107,7 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
 
     local blip = Citizen.InvokeNative(0x554D9D53F696D002, joaat('BLIP_STYLE_CREATOR_DEFAULT'), coords.x, coords.y, coords.z)
     local blip2 = Citizen.InvokeNative(0x554D9D53F696D002, joaat('BLIP_STYLE_COP_PERSISTENT'), coords.x, coords.y, coords.z)
-
+    local blipText = 'Police Alert - %{text}', {value = text}
     SetBlipSprite(blip, joaat('blip_ambient_law'))
     SetBlipSprite(blip2, joaat('blip_overlay_ring'))
     Citizen.InvokeNative(0x662D364ABF16DE2F, blip, joaat('BLIP_MODIFIER_AREA_PULSE'))
