@@ -14,9 +14,9 @@ Citizen.CreateThread(function()
         })
         if v.showblip == true then
             local LawMenuBlip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, v.coords)
-            SetBlipSprite(LawMenuBlip,  joaat(Config.LawOfficeBlip.blipSprite), true)
-            SetBlipScale(Config.LawOfficeBlip.blipScale, 0.2)
-            Citizen.InvokeNative(0x9CB1A1623062F402, LawMenuBlip, Config.LawOfficeBlip.blipName)
+            SetBlipSprite(LawMenuBlip,  joaat(v.blipsprite), true)
+            SetBlipScale(LawMenuBlip, v.blipscale)
+            Citizen.InvokeNative(0x9CB1A1623062F402, LawMenuBlip, v.name)
         end
     end
 end)
