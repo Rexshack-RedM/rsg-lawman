@@ -3,13 +3,6 @@ Config = {}
 -- debug
 Config.Debug = false
 
--- law office blip settings
-Config.LawOfficeBlip = {
-    blipName = 'Law Office', -- Config.Blip.blipName
-    blipSprite = 'blip_ambient_sheriff', -- Config.Blip.blipSprite
-    blipScale = 0.2 -- Config.Blip.blipScale
-}
-
 -- settings
 Config.AddGPSRoute = true
 Config.AlertTimer = 60
@@ -26,6 +19,8 @@ Config.LawOfficeLocations =
         prompt = 'vallawoffice',
         coords = vector3(-278.42, 805.29, 119.38),
         jobaccess = 'vallaw',
+        blipsprite = 'blip_ambient_sheriff',
+        blipscale = 0.2,
         showblip = true
     },
     {   -- rhodes
@@ -33,6 +28,8 @@ Config.LawOfficeLocations =
         prompt = 'rholawoffice',
         coords = vector3(1362.04, -1302.10, 77.77),
         jobaccess = 'rholaw',
+        blipsprite = 'blip_ambient_sheriff',
+        blipscale = 0.2,
         showblip = true
     },
     {   -- blackwater
@@ -40,6 +37,8 @@ Config.LawOfficeLocations =
         prompt = 'blklawoffice',
         coords = vector3(-761.76, -1268.18, 44.04),
         jobaccess = 'blklaw',
+        blipsprite = 'blip_ambient_sheriff',
+        blipscale = 0.2,
         showblip = true
     },
     {   -- strawberry
@@ -47,6 +46,8 @@ Config.LawOfficeLocations =
         prompt = 'strlawoffice',
         coords = vector3(-1811.95, -353.94, 164.65),
         jobaccess = 'strlaw',
+        blipsprite = 'blip_ambient_sheriff',
+        blipscale = 0.2,
         showblip = true
     },
     {   -- saint denis
@@ -54,6 +55,8 @@ Config.LawOfficeLocations =
         prompt = 'stdenlawoffice',
         coords = vector3(2507.72, -1301.89, 48.95),
         jobaccess = 'stdenlaw',
+        blipsprite = 'blip_ambient_sheriff',
+        blipscale = 0.2,
         showblip = true
     },
 }
