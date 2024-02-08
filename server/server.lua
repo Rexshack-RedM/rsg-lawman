@@ -72,7 +72,7 @@ end)
 --------------------------------------------------------------------------------------------------
 -- jail player command (law only)
 --------------------------------------------------------------------------------------------------
-RSGCore.Commands.Add("jail", "Jail Player (Law Only)", {{name = "id", help = "ID of Player"}, {name = "time", help = "Time they have to be in jail"}}, true, function(source, args)
+RSGCore.Commands.Add("jail", Lang:t('lang20'), {{name = "id", help =  Lang:t('lang21')}, {name = "time", help = Lang:t('lang22')}}, true, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
         if Player.PlayerData.job.type == "leo" then
@@ -81,7 +81,7 @@ RSGCore.Commands.Add("jail", "Jail Player (Law Only)", {{name = "id", help = "ID
             if time > 0 then
                 TriggerClientEvent('rsg-lawman:client:jailplayer', src, playerId, time)
             else
-                TriggerClientEvent('ox_lib:notify', src, {title = 'Invalid Jail Time', description = 'jail time needs to be higher than 0', type = 'inform', duration = 5000 })
+                TriggerClientEvent('ox_lib:notify', src, {title = Lang:t('lang23'), description = Lang:t('lang24'), type = 'inform', duration = 5000 })
             end
         end
 end)
@@ -103,7 +103,7 @@ RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
                 OtherPlayer.Functions.SetMetaData('injail', time)
                 OtherPlayer.Functions.SetMetaData('criminalrecord', { ['hasRecord'] = true, ['date'] = currentDate })
                 TriggerClientEvent('rsg-lawman:client:sendtojail', OtherPlayer.PlayerData.source, time)
-                TriggerClientEvent('ox_lib:notify', src, {title = 'Sent to Jail for '..time, type = 'success', duration = 5000 })
+                TriggerClientEvent('ox_lib:notify', src, {title =  Lang:t('lang25')..time, type = 'success', duration = 5000 })
             end
         end
 end)
@@ -140,7 +140,7 @@ SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
 ------------------------------------------
 -- handcuff player command
 ------------------------------------------
-RSGCore.Commands.Add("cuff", "Cuff Player (Law Only)", {}, false, function(source, args)
+RSGCore.Commands.Add("cuff",  Lang:t('lang26'), {}, false, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
         if Player.PlayerData.job.type == "leo" then
@@ -189,7 +189,7 @@ end)
 ------------------------------------------
 -- escort player command
 ------------------------------------------
-RSGCore.Commands.Add("escort", "Escort Player (Law Only)", {}, false, function(source, args)
+RSGCore.Commands.Add("escort", Lang:t('lang27'), {}, false, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
         if Player.PlayerData.job.type == "leo" then
@@ -220,7 +220,7 @@ RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
                 if (EscortPlayer.PlayerData.metadata["ishandcuffed"] or EscortPlayer.PlayerData.metadata["isdead"]) then
                     TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source, Player.PlayerData.source)
                 else
-                    lib.notify({ title = 'Player isn\'t cuffed or dead', type = 'error', duration = 5000 })
+                    lib.notify({ title = Lang:t('lang28'), type = 'error', duration = 5000 })
                 end
             end
         end

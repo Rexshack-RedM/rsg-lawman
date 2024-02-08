@@ -7,7 +7,7 @@ local timer = Config.AlertTimer
 -------------------------------------------------------------------------------------------
 Citizen.CreateThread(function()
     for _, v in pairs(Config.LawOfficeLocations) do
-        exports['rsg-core']:createPrompt(v.prompt, v.coords, RSGCore.Shared.Keybinds[Config.Keybind], 'Open Menu', {
+        exports['rsg-core']:createPrompt(v.prompt, v.coords, RSGCore.Shared.Keybinds[Config.Keybind], Lang:t('lang1'), {
             type = 'client',
             event = 'rsg-lawman:client:mainmenu',
             args = { v.jobaccess },
@@ -30,32 +30,32 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
     if playerjob == jobaccess then
         lib.registerContext({
             id = 'lawoffice_mainmenu',
-            title = 'Law Office Menu',
+            title = Lang:t('lang2'),
             options = {
                 {
-                    title = 'Boss Menu',
-                    description = 'open the boss menu',
+                    title = Lang:t('lang3'),
+                    description = Lang:t('lang4'),
                     icon = 'fa-solid fa-user-tie',
                     event = 'rsg-bossmenu:client:mainmenu',
                     arrow = true
                 },
                 {
-                    title = 'Toggle Duty',
+                    title = Lang:t('lang5'),
                     icon = 'fa-solid fa-shield-heart',
                     description = '',
                     event = 'rsg-lawman:client:ToggleDuty',
                     arrow = true
                 },
                 {
-                    title = 'Armoury',
-                    description = 'open the armoury',
+                    title = Lang:t('lang6'),
+                    description = Lang:t('lang7'),
                     icon = 'fa-solid fa-person-rifle',
                     event = 'rsg-lawman:client:openarmoury',
                     arrow = true
                 },
                 {
-                    title = 'Trash Can',
-                    description = 'for items that are no longer needed',
+                    title = Lang:t('lang8'),
+                    description = Lang:t('lang9'),
                     icon = 'fa-solid fa-trash-can',
                     event = 'rsg-lawman:client:opentrash',
                     arrow = true
@@ -64,7 +64,7 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
         })
         lib.showContext("lawoffice_mainmenu")
     else
-        lib.notify({ title = 'Not Authorised', type = 'error', duration = 5000 })
+        lib.notify({ title = Lang:t('lang10'), type = 'error', duration = 5000 })
     end
 end)
 
@@ -76,7 +76,7 @@ AddEventHandler('rsg-lawman:client:openarmoury', function()
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         if PlayerData.job.type == "leo" then
             local ArmouryItems = {}
-            ArmouryItems.label = "Law Office Armoury"
+            ArmouryItems.label =  Lang:t('lang11')
             ArmouryItems.items = Config.LawOfficeArmoury
             ArmouryItems.slots = #Config.LawOfficeArmoury
             TriggerServerEvent("inventory:server:OpenInventory", "shop", "LawOffice_"..math.random(1, 99), ArmouryItems)
@@ -107,7 +107,7 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
 
     local blip = Citizen.InvokeNative(0x554D9D53F696D002, joaat('BLIP_STYLE_CREATOR_DEFAULT'), coords.x, coords.y, coords.z)
     local blip2 = Citizen.InvokeNative(0x554D9D53F696D002, joaat('BLIP_STYLE_COP_PERSISTENT'), coords.x, coords.y, coords.z)
-    local blipText = 'Police Alert - %{text}', {value = text}
+    local blipText = Lang:t('lang12')..'- %{text}', {value = text}
     SetBlipSprite(blip, joaat('blip_ambient_law'))
     SetBlipSprite(blip2, joaat('blip_overlay_ring'))
     Citizen.InvokeNative(0x662D364ABF16DE2F, blip, joaat('BLIP_MODIFIER_AREA_PULSE'))
@@ -199,13 +199,13 @@ RegisterNetEvent('rsg-lawman:client:cuffplayer', function()
                     TriggerServerEvent('rsg-lawman:server:cuffplayer', playerId, false)
                     -- HandCuffAnimation()
                 else
-                    lib.notify({ title = 'Failed', description = 'you can\'t cuff someone in a vehicle', type = 'error', duration = 5000 })
+                    lib.notify({ title = Lang:t('lang13'), description = Lang:t('lang14'), type = 'error', duration = 5000 })
                 end
             else
-                lib.notify({ title = 'Handcuffs Needed', description = 'you don\'t have handcuffs on you', type = 'error', duration = 5000 })
+                lib.notify({ title = Lang:t('lang15'), description = Lang:t('lang16'), type = 'error', duration = 5000 })
             end
         else
-            lib.notify({ title = 'No one nearby!', type = 'error', duration = 5000 })
+            lib.notify({ title = Lang:t('lang17'), type = 'error', duration = 5000 })
         end
     else
         Wait(2000)
@@ -227,10 +227,10 @@ RegisterNetEvent('rsg-lawman:client:getcuffed', function(playerId, isSoftcuff)
         end
         if not isSoftcuff then
             cuffType = 16
-            lib.notify({ title = 'You are cuffed!', type = 'inform', duration = 5000 })
+            lib.notify({ title = Lang:t('lang18'), type = 'inform', duration = 5000 })
         else
             cuffType = 49
-            lib.notify({ title = 'You are cuffed!', description = 'but you can walk', type = 'inform', duration = 5000 })
+            lib.notify({ title = Lang:t('lang18'), description = Lang:t('lang19'), type = 'inform', duration = 5000 })
         end
     else
         isHandcuffed = false
@@ -247,7 +247,7 @@ RegisterNetEvent('rsg-lawman:client:getcuffed', function(playerId, isSoftcuff)
         if cuffType == 49 then
             FreezeEntityPosition(ped, false)
         end
-        lib.notify({ title = 'You are uncuffed!', type = 'inform', duration = 5000 })
+        lib.notify({ title = Lang:t('lang18'), type = 'inform', duration = 5000 })
     end
 end)
 
@@ -329,7 +329,7 @@ RegisterNetEvent('rsg-lawman:client:escortplayer', function()
             TriggerServerEvent("rsg-lawman:server:escortplayer", playerId)
         end
     else
-        lib.notify({ title = 'No one nearby!', type = 'error', duration = 5000 })
+        lib.notify({ title = Lang:t('lang17'), type = 'error', duration = 5000 })
     end
 end)
 
