@@ -114,6 +114,10 @@ end)
 UpkeepInterval = function()
     local result = MySQL.query.await('SELECT * FROM stashitems LIMIT 1')
 
+    if not result or not result[1] then
+        return
+    end
+
     local stash = result[1].stash
     local items = result[1].items
 
