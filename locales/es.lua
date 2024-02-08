@@ -27,7 +27,7 @@ local Translations = {
     lang26 = 'Jugador brazalete (solo lawman)',
     lang27 = 'Jugador de escolta (solo lawman)',
     lang28 = 'El jugador no está esposado ni muerto',
-    lang29 = 'You are uncuffed!'
+    lang29 = '¡Estás sin esposas!'
 
 }
 
