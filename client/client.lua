@@ -247,7 +247,7 @@ RegisterNetEvent('rsg-lawman:client:getcuffed', function(playerId, isSoftcuff)
         if cuffType == 49 then
             FreezeEntityPosition(ped, false)
         end
-        lib.notify({ title = Lang:t('lang18'), type = 'inform', duration = 5000 })
+        lib.notify({ title = Lang:t('lang29'), type = 'inform', duration = 5000 })
     end
 end)
 
