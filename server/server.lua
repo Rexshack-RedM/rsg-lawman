@@ -112,7 +112,7 @@ end)
 -- lawman tash can collection system
 --------------------------------------------------------------------------------------------------
 UpkeepInterval = function()
-    local result = MySQL.query.await('SELECT * FROM stashitems')
+    local result = MySQL.query.await('SELECT * FROM stashitems LIMIT 1')
 
     local stash = result[1].stash
     local items = result[1].items
@@ -121,7 +121,7 @@ UpkeepInterval = function()
         if Config.Debug then
             print('trash already taken out')
         end
-        goto continue
+        return 
     end
 
     MySQL.update('UPDATE stashitems SET items = ? WHERE stash = ?',{ '[]', 'lawtrashcan' })
