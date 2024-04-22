@@ -169,14 +169,14 @@ end)
 RegisterNetEvent('rsg-lawman:server:cuffplayer', function(playerId, isSoftcuff)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-        if Player.PlayerData.job.type == "leo" then
-            local CuffedPlayer = RSGCore.Functions.GetPlayer(playerId)
-            if CuffedPlayer then
-                if Player.Functions.GetItemByName('handcuffs') then
-                    TriggerClientEvent('rsg-lawman:client:getcuffed', CuffedPlayer.PlayerData.source, Player.PlayerData.source, isSoftcuff)
-                end
+    if Player.PlayerData.job.type == "leo" then
+        local CuffedPlayer = RSGCore.Functions.GetPlayer(playerId)
+        if CuffedPlayer then
+            if Player.Functions.GetItemByName('handcuffs') then
+                TriggerClientEvent('rsg-lawman:client:getcuffed', CuffedPlayer.PlayerData.source, Player.PlayerData.source, isSoftcuff)
             end
         end
+    end
 end)
 
 ------------------------------------------
@@ -196,9 +196,9 @@ end)
 RSGCore.Commands.Add("escort", Lang:t('lang27'), {}, false, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-        if Player.PlayerData.job.type == "leo" then
-            TriggerClientEvent('rsg-lawman:client:escortplayer', src)
-        end
+    if Player.PlayerData.job.type == "leo" then
+        TriggerClientEvent('rsg-lawman:client:escortplayer', src)
+    end
 end)
 
 ------------------------------------------
@@ -218,16 +218,16 @@ end)
 RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(source)
-        if Player.PlayerData.job.type == "leo" then
-            local EscortPlayer = RSGCore.Functions.GetPlayer(playerId)
-            if EscortPlayer then
-                if (EscortPlayer.PlayerData.metadata["ishandcuffed"] or EscortPlayer.PlayerData.metadata["isdead"]) then
-                    TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source, Player.PlayerData.source)
-                else
-                    lib.notify({ title = Lang:t('lang28'), type = 'error', duration = 5000 })
-                end
+    if Player.PlayerData.job.type == "leo" then
+        local EscortPlayer = RSGCore.Functions.GetPlayer(playerId)
+        if EscortPlayer then
+            if (EscortPlayer.PlayerData.metadata["ishandcuffed"] or EscortPlayer.PlayerData.metadata["isdead"]) then
+                TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source, Player.PlayerData.source)
+            else
+                lib.notify({ title = Lang:t('lang28'), type = 'error', duration = 5000 })
             end
         end
+    end
 end)
 
 --------------------------------------------------------------------------------------------------
