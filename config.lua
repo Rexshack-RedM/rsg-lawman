@@ -10,6 +10,7 @@ Config.Keybind = 'J'
 Config.StorageMaxWeight = 4000000
 Config.StorageMaxSlots = 48
 Config.TrashCollection = 1 -- mins
+Config.ArmouryAccessGrade = 1 -- and greater than
 
 -- Law Office Prompt Locations
 Config.LawOfficeLocations =

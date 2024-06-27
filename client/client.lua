@@ -74,12 +74,14 @@ end)
 RegisterNetEvent('rsg-lawman:client:openarmoury')
 AddEventHandler('rsg-lawman:client:openarmoury', function()
     RSGCore.Functions.GetPlayerData(function(PlayerData)
-        if PlayerData.job.type == "leo" then
+        if PlayerData.job.type == "leo" and PlayerData.job.grade.level >= Config.ArmouryAccessGrade then
             local ArmouryItems = {}
             ArmouryItems.label =  Lang:t('lang11')
             ArmouryItems.items = Config.LawOfficeArmoury
             ArmouryItems.slots = #Config.LawOfficeArmoury
             TriggerServerEvent("inventory:server:OpenInventory", "shop", "LawOffice_"..math.random(1, 99), ArmouryItems)
+        else
+            lib.notify({ title = Lang:t('lang30'), type = 'error', duration = 7000 })
         end
     end)
 end)

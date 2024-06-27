@@ -27,7 +27,8 @@ local Translations = {
     lang26 = 'Cuff Player (Law Only)',
     lang27 = 'Escort Player (Law Only)',
     lang28 = 'Player isn\'t cuffed or dead',
-    lang29 = 'You are uncuffed!'
+    lang29 = 'You are uncuffed!',
+    lang30 = 'Not high enough rank!'
 
 }
 
