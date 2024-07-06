@@ -1,6 +1,7 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
 local blipEntries = {}
 local timer = Config.AlertTimer
+local badge = false
 
 -------------------------------------------------------------------------------------------
 -- prompts and blips if needed
@@ -353,6 +354,52 @@ RegisterNetEvent('rsg-lawman:client:getescorted', function(playerId)
                 TriggerServerEvent('rsg-lawman:server:setescortstatus', false)
                 DetachEntity(cache.ped, true, false)
             end
+        end
+    end)
+end)
+
+RegisterNetEvent('rsg-lawman:client:lawbadge', function()
+    RSGCore.Functions.GetPlayerData(function(PlayerData)
+        local jobname = PlayerData.job.name
+        if jobname == 'vallaw' or jobname == 'rholaw' or jobname == 'blklaw' or jobname == 'strlaw' or jobname == 'stdenlaw' then
+            if badge == false then
+                if not IsPedMale(cache.ped) then -- female
+                    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), 0x0929677D, true, true, true) -- ApplyShopItemToPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
+                else -- male
+                    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), 0xDB4C451D, true, false, true) -- ApplyShopItemToPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
+                end
+                lib.notify({
+                    title = 'law badge on',
+                    type = 'inform',
+                    position = 'center-right',
+                    duration = 5000
+                })
+                badge = true
+            else
+                if not IsPedMale(cache.ped) then -- female
+                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, PlayerPedId(), 0x0929677D, 0, 0) -- RemoveShopItemFromPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
+                else -- male
+                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, PlayerPedId(), 0xDB4C451D, 0, 0) -- RemoveShopItemFromPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
+                end
+                lib.notify({
+                    title = 'law badge off',
+                    type = 'inform',
+                    position = 'center-right',
+                    duration = 5000
+                })
+                badge = false
+            end
+        else
+            lib.notify({
+                title = 'only law can do this',
+                type = 'inform',
+                position = 'center-right',
+                duration = 5000
+            })
         end
     end)
 end)

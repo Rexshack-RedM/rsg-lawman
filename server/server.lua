@@ -1,12 +1,28 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
 
------------------------------------------------------------------------
-
+------------------------------------------
+-- law test alert
+------------------------------------------
 RSGCore.Commands.Add("testalert", "send test alert", {}, false, function(source)
     local src = source
     local playerCoords = GetEntityCoords(GetPlayerPed(source))
     local text = "testing"
     TriggerClientEvent('rsg-lawman:client:lawmanAlert', src, playerCoords, text)
+end)
+
+------------------------------------------
+-- law badge
+------------------------------------------
+RSGCore.Commands.Add('lawbadge', 'put on / take off badge', {}, false, function(source, args)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    local jobname = Player.PlayerData.job.name
+    local onduty = Player.PlayerData.job.onduty
+    if onduty and jobname == 'vallaw' or jobname == 'rholaw' or jobname == 'blklaw' or jobname == 'strlaw' or jobname == 'stdenlaw' then
+        TriggerClientEvent('rsg-lawman:client:lawbadge', src)
+    else
+        TriggerClientEvent('ox_lib:notify', src, {title = 'Need to be on duty', type = 'error', duration = 5000 })
+    end
 end)
 
 ------------------------------------------
@@ -43,10 +59,10 @@ end)
 --------------------------------------------------------------------------------------------------
 -- jail player command (law only)
 --------------------------------------------------------------------------------------------------
-RSGCore.Commands.Add("jail", Lang:t('lang20'), {{name = "id", help =  Lang:t('lang21')}, {name = "time", help = Lang:t('lang22')}}, true, function(source, args)
+RSGCore.Commands.Add('jail', Lang:t('lang20'), {{name = 'id', help =  Lang:t('lang21')}, {name = 'time', help = Lang:t('lang22')}}, true, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-        if Player.PlayerData.job.type == "leo" then
+        if Player.PlayerData.job.type == 'leo' then
             local playerId = tonumber(args[1])
             local time = tonumber(args[2])
             if time > 0 then
@@ -69,7 +85,7 @@ RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
         currentDate.day = 30
     end
 
-        if Player.PlayerData.job.type == "leo" then
+        if Player.PlayerData.job.type == 'leo' then
             if OtherPlayer then
                 OtherPlayer.Functions.SetMetaData('injail', time)
                 OtherPlayer.Functions.SetMetaData('criminalrecord', { ['hasRecord'] = true, ['date'] = currentDate })
@@ -115,10 +131,10 @@ SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
 ------------------------------------------
 -- handcuff player command
 ------------------------------------------
-RSGCore.Commands.Add("cuff",  Lang:t('lang26'), {}, false, function(source, args)
+RSGCore.Commands.Add('cuff',  Lang:t('lang26'), {}, false, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-        if Player.PlayerData.job.type == "leo" then
+        if Player.PlayerData.job.type == 'leo' then
             TriggerClientEvent('rsg-lawman:client:cuffplayer', src)
         end
 end)
@@ -126,7 +142,7 @@ end)
 ------------------------------------------
 -- handcuff player use
 ------------------------------------------
-RSGCore.Functions.CreateUseableItem("handcuffs", function(source, item)
+RSGCore.Functions.CreateUseableItem('handcuffs', function(source, item)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
     if Player.Functions.GetItemByName(item.name) then
@@ -140,7 +156,7 @@ end)
 RegisterNetEvent('rsg-lawman:server:cuffplayer', function(playerId, isSoftcuff)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-    if Player.PlayerData.job.type == "leo" then
+    if Player.PlayerData.job.type == 'leo' then
         local CuffedPlayer = RSGCore.Functions.GetPlayer(playerId)
         if CuffedPlayer then
             if Player.Functions.GetItemByName('handcuffs') then
@@ -157,17 +173,17 @@ RegisterNetEvent('rsg-lawman:server:sethandcuffstatus', function(isHandcuffed)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
     if Player then
-        Player.Functions.SetMetaData("ishandcuffed", isHandcuffed)
+        Player.Functions.SetMetaData('ishandcuffed', isHandcuffed)
     end
 end)
 
 ------------------------------------------
 -- escort player command
 ------------------------------------------
-RSGCore.Commands.Add("escort", Lang:t('lang27'), {}, false, function(source, args)
+RSGCore.Commands.Add('escort', Lang:t('lang27'), {}, false, function(source, args)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-    if Player.PlayerData.job.type == "leo" then
+    if Player.PlayerData.job.type == 'leo' then
         TriggerClientEvent('rsg-lawman:client:escortplayer', src)
     end
 end)
@@ -179,7 +195,7 @@ RegisterNetEvent('rsg-lawman:server:setescortstatus', function(isEscorted)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
     if Player then
-        Player.Functions.SetMetaData("isescorted", isEscorted)
+        Player.Functions.SetMetaData('isescorted', isEscorted)
     end
 end)
 
@@ -189,10 +205,10 @@ end)
 RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(source)
-    if Player.PlayerData.job.type == "leo" then
+    if Player.PlayerData.job.type == 'leo' then
         local EscortPlayer = RSGCore.Functions.GetPlayer(playerId)
         if EscortPlayer then
-            if (EscortPlayer.PlayerData.metadata["ishandcuffed"] or EscortPlayer.PlayerData.metadata["isdead"]) then
+            if (EscortPlayer.PlayerData.metadata['ishandcuffed'] or EscortPlayer.PlayerData.metadata['isdead']) then
                 TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source, Player.PlayerData.source)
             else
                 lib.notify({ title = Lang:t('lang28'), type = 'error', duration = 5000 })
