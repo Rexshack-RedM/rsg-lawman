@@ -43,15 +43,19 @@ end)
 -- lawman alert
 --------------------------------------------------------------------------------------------------
 
-RegisterNetEvent('rsg-lawman:server:lawmanAlert', function(text)
+RegisterNetEvent('rsg-lawman:server:lawmanAlert', function(text, coords)
     local src = source
     local ped = GetPlayerPed(src)
-    local coords = GetEntityCoords(ped)
+    local pedCoords = GetEntityCoords(ped)
     local players = RSGCore.Functions.GetRSGPlayers()
 
     for _, v in pairs(players) do
         if v.PlayerData.job.type == 'leo' and v.PlayerData.job.onduty then
-            TriggerClientEvent('rsg-lawman:client:lawmanAlert', v.PlayerData.source, coords, text)
+            if coords then
+                TriggerClientEvent('rsg-lawman:client:lawmanAlert', v.PlayerData.source, coords, text)
+            else
+                TriggerClientEvent('rsg-lawman:client:lawmanAlert', v.PlayerData.source, pedCoords, text)
+            end
         end
     end
 end)
