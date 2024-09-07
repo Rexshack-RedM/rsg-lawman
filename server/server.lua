@@ -11,6 +11,14 @@ RSGCore.Commands.Add("testalert", "send test alert", {}, false, function(source)
 end)
 
 ------------------------------------------
+-- search players inventory
+------------------------------------------
+RSGCore.Commands.Add('searchplayer', 'Search other players inventory', {}, false, function(source)
+    local src = source
+    TriggerClientEvent('rsg-lawman:client:searchplayer', src)
+end)
+
+------------------------------------------
 -- law badge
 ------------------------------------------
 RSGCore.Commands.Add('lawbadge', 'put on / take off badge', {}, false, function(source, args)
