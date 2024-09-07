@@ -358,6 +358,9 @@ RegisterNetEvent('rsg-lawman:client:getescorted', function(playerId)
     end)
 end)
 
+------------------------------------------
+-- law badge
+------------------------------------------
 RegisterNetEvent('rsg-lawman:client:lawbadge', function()
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         local jobname = PlayerData.job.name
@@ -371,7 +374,7 @@ RegisterNetEvent('rsg-lawman:client:lawbadge', function()
                     Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
                 end
                 lib.notify({
-                    title = 'law badge on',
+                    title = Lang:t('lang31'),
                     type = 'inform',
                     position = 'center-right',
                     duration = 5000
@@ -386,7 +389,7 @@ RegisterNetEvent('rsg-lawman:client:lawbadge', function()
                     Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
                 end
                 lib.notify({
-                    title = 'law badge off',
+                    title = Lang:t('lang32'),
                     type = 'inform',
                     position = 'center-right',
                     duration = 5000
@@ -395,11 +398,50 @@ RegisterNetEvent('rsg-lawman:client:lawbadge', function()
             end
         else
             lib.notify({
-                title = 'only law can do this',
+                title = Lang:t('lang33'),
                 type = 'inform',
                 position = 'center-right',
                 duration = 5000
             })
         end
     end)
+end)
+
+------------------------------------------
+-- search other players inventory
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:searchplayer', function()
+    local player, distance = RSGCore.Functions.GetClosestPlayer()
+    if player ~= -1 and distance < 2.5 then
+        local playerPed = GetPlayerPed(player)
+        local playerId = GetPlayerServerId(player)
+        if IsEntityPlayingAnim(playerPed, "script_proc@robberies@homestead@lonnies_shack@deception", "hands_up_loop", 3) or IsPedDeadOrDying(playerId) then
+            lib.progressBar({
+            label = Lang:t('lang34'),
+                duration = Config.SearchTime,
+                position = 'bottom',
+                useWhileDead = false,
+                canCancel = true,
+                disable = {
+                    move = true,
+                    combat = true,
+                    mouse = true
+                },
+                anim = {
+                    dict = 'script_rc@cldn@ig@rsc2_ig1_questionshopkeeper',
+                    clip = 'inspectfloor_player',
+                    flag = 16
+                },
+            })
+            ClearPedTasks(cache.ped)
+            TriggerServerEvent('inventory:server:OpenInventory', 'otherplayer', playerId)
+        end
+    else
+        lib.notify({
+            title = Lang:t('lang35'),
+            type = 'inform',
+            position = 'center-right',
+            duration = 5000
+        })
+    end
 end)

@@ -28,10 +28,13 @@ local Translations = {
     lang27 = 'Escort Player (Law Only)',
     lang28 = 'Player isn\'t cuffed or dead',
     lang29 = 'You are uncuffed!',
-    lang30 = 'Not high enough rank!'
-
+    lang30 = 'Not high enough rank!',
+    lang31 = 'law badge on',
+    lang32 = 'law badge off',
+    lang33 = 'only law can do this',
+    lang34 = 'Searching Player',
+    lang35 = 'No player nearby!',
 }
-
 
 Lang = Locale:new({
     phrases = Translations,
