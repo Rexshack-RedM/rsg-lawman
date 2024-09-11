@@ -34,6 +34,7 @@ local Translations = {
     lang33 = 'only law can do this',
     lang34 = 'Searching Player',
     lang35 = 'No player nearby!',
+    lang36 = 'Not be able to do that!',
 }
 
 Lang = Locale:new({
