@@ -411,37 +411,53 @@ end)
 -- search other players inventory
 ------------------------------------------
 RegisterNetEvent('rsg-lawman:client:searchplayer', function()
-    local player, distance = RSGCore.Functions.GetClosestPlayer()
-    if player ~= -1 and distance < 2.5 then
-        local playerPed = GetPlayerPed(player)
-        local playerId = GetPlayerServerId(player)
-        if IsEntityPlayingAnim(playerPed, "script_proc@robberies@homestead@lonnies_shack@deception", "hands_up_loop", 3) or IsPedDeadOrDying(playerId) then
-            lib.progressBar({
-            label = Lang:t('lang34'),
-                duration = Config.SearchTime,
-                position = 'bottom',
-                useWhileDead = false,
-                canCancel = true,
-                disable = {
-                    move = true,
-                    combat = true,
-                    mouse = true
-                },
-                anim = {
-                    dict = 'script_rc@cldn@ig@rsc2_ig1_questionshopkeeper',
-                    clip = 'inspectfloor_player',
-                    flag = 16
-                },
-            })
-            ClearPedTasks(cache.ped)
-            TriggerServerEvent('inventory:server:OpenInventory', 'otherplayer', playerId)
-        end
-    else
-        lib.notify({
-            title = Lang:t('lang35'),
-            type = 'inform',
-            position = 'center-right',
-            duration = 5000
-        })
-    end
+
+	if not IsPedRagdoll(cache.ped) then
+		local player, distance = RSGCore.Functions.GetClosestPlayer()
+		if player ~= -1 and distance < 2.5 then
+			local playerPed = GetPlayerPed(player)
+			local playerId = GetPlayerServerId(player)
+			local isdead = IsEntityDead(playerPed)
+			local cuffed = IsPedCuffed(playerPed)
+			local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, playerPed)
+			local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, playerPed)
+			local ragdoll = IsPedRagdoll(playerPed)
+
+			if isdead or cuffed or hogtied or lassoed or ragdoll or IsEntityPlayingAnim(playerPed, "script_proc@robberies@homestead@lonnies_shack@deception", "hands_up_loop", 3) then
+				lib.progressBar({
+				label = Lang:t('lang34'),
+					duration = Config.SearchTime,
+					position = 'bottom',
+					useWhileDead = false,
+					canCancel = true,
+					disable = {
+						move = true,
+						combat = true,
+						mouse = true
+					},
+					anim = {
+						dict = 'script_rc@cldn@ig@rsc2_ig1_questionshopkeeper',
+						clip = 'inspectfloor_player',
+						flag = 16
+					},
+				})
+				ClearPedTasks(cache.ped)
+				TriggerServerEvent('inventory:server:OpenInventory', 'otherplayer', playerId)
+			end
+		else
+			lib.notify({
+				title = Lang:t('lang35'),
+				type = 'inform',
+				position = 'center-right',
+				duration = 5000
+			})
+		end
+	else
+		lib.notify({
+			title = Lang:t('lang36'),
+			type = 'inform',
+			position = 'center-right',
+			duration = 5000
+		})
+	end
 end)
