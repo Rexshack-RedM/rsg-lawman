@@ -76,11 +76,7 @@ RegisterNetEvent('rsg-lawman:client:openarmoury')
 AddEventHandler('rsg-lawman:client:openarmoury', function()
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         if PlayerData.job.type == "leo" and PlayerData.job.grade.level >= Config.ArmouryAccessGrade then
-            local ArmouryItems = {}
-            ArmouryItems.label =  Lang:t('lang11')
-            ArmouryItems.items = Config.LawOfficeArmoury
-            ArmouryItems.slots = #Config.LawOfficeArmoury
-            TriggerServerEvent("inventory:server:OpenInventory", "shop", "LawOffice_"..math.random(1, 99), ArmouryItems)
+            TriggerServerEvent('rsg-shops:server:openstore', 'armoury', 'armoury', 'Law Armoury')
         else
             lib.notify({ title = Lang:t('lang30'), type = 'error', duration = 7000 })
         end
@@ -178,6 +174,8 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
     end)
 end)
 
+--[[
+need to update to inventory v2
 ------------------------------------------
 -- trash can
 ------------------------------------------
@@ -189,6 +187,7 @@ RegisterNetEvent('rsg-lawman:client:opentrash', function()
         end
     end)
 end)
+--]]
 
 ------------------------------------------
 -- handcuff player

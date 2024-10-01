@@ -107,6 +107,8 @@ RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
         end
 end)
 
+--[[
+need to update to inventory v2
 --------------------------------------------------------------------------------------------------
 -- lawman tash can collection system
 --------------------------------------------------------------------------------------------------
@@ -139,6 +141,7 @@ UpkeepInterval = function()
 end
 
 SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
+--]]
 
 ------------------------------------------
 -- handcuff player command
