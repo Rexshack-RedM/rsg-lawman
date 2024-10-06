@@ -35,6 +35,8 @@ local Translations = {
     lang34 = 'Searching Player',
     lang35 = 'No player nearby!',
     lang36 = 'Not be able to do that!',
+    lang37 = 'Not able to search player',
+    lang38 = 'Being searched..',
 }
 
 Lang = Locale:new({

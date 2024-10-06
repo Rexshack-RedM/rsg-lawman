@@ -15,7 +15,23 @@ end)
 ------------------------------------------
 RSGCore.Commands.Add('searchplayer', 'Search other players inventory', {}, false, function(source)
     local src = source
-    TriggerClientEvent('rsg-lawman:client:searchplayer', src)
+    TriggerClientEvent('rsg-lawman:client:SearchPlayer', src)
+end)
+
+RegisterNetEvent('rsg-lawman:server:SearchPlayer', function()
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    if not Player then return end
+    local PlayerData = Player.PlayerData
+    local player, distance = RSGCore.Functions.GetClosestPlayer(src)
+    if player ~= -1 and distance < Config.SearchDistance then
+        local SearchedPlayer = RSGCore.Functions.GetPlayer(tonumber(player))
+        if not SearchedPlayer then return end
+        exports['rsg-inventory']:OpenInventoryById(src, tonumber(player))
+        TriggerClientEvent('ox_lib:notify', player, {title = 'Info', description = Lang:t('lang38'), type = 'info', duration = 7000 })
+    else
+        TriggerClientEvent('ox_lib:notify', src, {title = 'Error', description = Lang:t('lang35'), type = 'error', duration = 7000 })
+    end
 end)
 
 ------------------------------------------

@@ -409,11 +409,10 @@ end)
 ------------------------------------------
 -- search other players inventory
 ------------------------------------------
-RegisterNetEvent('rsg-lawman:client:searchplayer', function()
-
+RegisterNetEvent('rsg-lawman:client:SearchPlayer', function()
     if not IsPedRagdoll(cache.ped) then
         local player, distance = RSGCore.Functions.GetClosestPlayer()
-        if player ~= -1 and distance < 2.5 then
+        if player ~= -1 and distance < Config.SearchDistance then
             local playerPed = GetPlayerPed(player)
             local playerId = GetPlayerServerId(player)
             local isdead = IsEntityDead(playerPed)
@@ -421,42 +420,15 @@ RegisterNetEvent('rsg-lawman:client:searchplayer', function()
             local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, playerPed)
             local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, playerPed)
             local ragdoll = IsPedRagdoll(playerPed)
-
             if isdead or cuffed or hogtied or lassoed or ragdoll or IsEntityPlayingAnim(playerPed, "script_proc@robberies@homestead@lonnies_shack@deception", "hands_up_loop", 3) then
-                lib.progressBar({
-                label = Lang:t('lang34'),
-                    duration = Config.SearchTime,
-                    position = 'bottom',
-                    useWhileDead = false,
-                    canCancel = true,
-                    disable = {
-                        move = true,
-                        combat = true,
-                        mouse = true
-                    },
-                    anim = {
-                        dict = 'script_rc@cldn@ig@rsc2_ig1_questionshopkeeper',
-                        clip = 'inspectfloor_player',
-                        flag = 16
-                    },
-                })
-                ClearPedTasks(cache.ped)
-                TriggerServerEvent('inventory:server:OpenInventory', 'otherplayer', playerId)
+                TriggerServerEvent('rsg-lawman:server:SearchPlayer')
+            else
+                lib.notify({ title = Lang:t('lang37'), type = 'inform', position = 'center-right', duration = 5000 })
             end
         else
-            lib.notify({
-                title = Lang:t('lang35'),
-                type = 'inform',
-                position = 'center-right',
-                duration = 5000
-            })
+            lib.notify({ title = Lang:t('lang35'), type = 'inform', position = 'center-right', duration = 5000 })
         end
     else
-        lib.notify({
-            title = Lang:t('lang36'),
-            type = 'inform',
-            position = 'center-right',
-            duration = 5000
-        })
+        lib.notify({ title = Lang:t('lang36'), type = 'inform', position = 'center-right', duration = 5000 })
     end
 end)

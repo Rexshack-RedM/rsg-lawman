@@ -12,6 +12,7 @@ Config.StorageMaxSlots = 48
 Config.TrashCollection = 1 -- mins
 Config.ArmouryAccessGrade = 1 -- and greater than
 Config.SearchTime = 10000
+Config.SearchDistance = 2.5
 
 -- Law Office Prompt Locations
 Config.LawOfficeLocations =
