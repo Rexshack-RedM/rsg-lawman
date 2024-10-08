@@ -123,42 +123,6 @@ RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
         end
 end)
 
---[[
-need to update to inventory v2
---------------------------------------------------------------------------------------------------
--- lawman tash can collection system
---------------------------------------------------------------------------------------------------
-UpkeepInterval = function()
-    local result = MySQL.query.await('SELECT * FROM stashitems LIMIT 1')
-
-    if not result or not result[1] then
-        return
-    end
-
-    local stash = result[1].stash
-    local items = result[1].items
-
-    if stash == 'lawtrashcan' and items == '[]' then 
-        if Config.Debug then
-            print('trash already taken out')
-        end
-        return 
-    end
-
-    MySQL.update('UPDATE stashitems SET items = ? WHERE stash = ?',{ '[]', 'lawtrashcan' })
-
-    if Config.Debug then
-        print('law trash removal complete')
-    end
-
-    ::continue::
-
-    SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
-end
-
-SetTimeout(Config.TrashCollection * (60 * 1000), UpkeepInterval)
---]]
-
 ------------------------------------------
 -- handcuff player command
 ------------------------------------------
@@ -246,4 +210,16 @@ RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
             end
         end
     end
+end)
+
+---------------------------------
+-- open law storage
+---------------------------------
+RegisterServerEvent('rsg-lawman:server:storage', function(jobname)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    if not Player then return end
+    local data = { label = 'Law Storage', maxweight = Config.StorageMaxWeight, slots = Config.StorageMaxSlots }
+    local stashName = 'lawstorage'.. jobname
+    exports['rsg-inventory']:OpenInventory(src, stashName, data)
 end)

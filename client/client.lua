@@ -57,8 +57,8 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
                 {
                     title = Lang:t('lang8'),
                     description = Lang:t('lang9'),
-                    icon = 'fa-solid fa-trash-can',
-                    event = 'rsg-lawman:client:opentrash',
+                    icon = 'fa-solid fa-box-archive',
+                    event = 'rsg-lawman:client:openstorage',
                     arrow = true
                 },
             }
@@ -173,21 +173,6 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
         end
     end)
 end)
-
---[[
-need to update to inventory v2
-------------------------------------------
--- trash can
-------------------------------------------
-RegisterNetEvent('rsg-lawman:client:opentrash', function()
-    RSGCore.Functions.GetPlayerData(function(PlayerData)
-        if PlayerData.job.type == "leo" then
-            TriggerServerEvent("inventory:server:OpenInventory", "stash", 'lawtrashcan', { maxweight = Config.StorageMaxWeight, slots = Config.StorageMaxSlots })
-            TriggerEvent("inventory:client:SetCurrentStash", 'lawtrashcan')
-        end
-    end)
-end)
---]]
 
 ------------------------------------------
 -- handcuff player
@@ -431,4 +416,16 @@ RegisterNetEvent('rsg-lawman:client:SearchPlayer', function()
     else
         lib.notify({ title = Lang:t('lang36'), type = 'inform', position = 'center-right', duration = 5000 })
     end
+end)
+
+------------------------------------------
+-- open law trashcan
+------------------------------------------
+RegisterNetEvent('rsg-lawman:client:openstorage', function()
+    RSGCore.Functions.GetPlayerData(function(PlayerData)
+        if PlayerData.job.type == 'leo' then
+            local jobname = PlayerData.job.name
+            TriggerServerEvent('rsg-lawman:server:storage', jobname)
+        end
+    end)
 end)
