@@ -7,9 +7,6 @@ version '1.1.5'
 
 shared_scripts {
     '@ox_lib/init.lua',
-    '@rsg-core/shared/locale.lua',
-    'locales/en.lua',
-    'locales/*.lua',
     'config.lua',
 }
 
@@ -18,9 +15,13 @@ client_scripts {
 }
 
 server_scripts {
+    '@oxmysql/lib/MySQL.lua',
     'server/server.lua',
     'server/versionchecker.lua',
-    '@oxmysql/lib/MySQL.lua',
+}
+
+files {
+    'locales/*.json',
 }
 
 dependencies {

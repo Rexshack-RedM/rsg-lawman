@@ -2,16 +2,17 @@ local RSGCore = exports['rsg-core']:GetCoreObject()
 local blipEntries = {}
 local timer = Config.AlertTimer
 local badge = false
+lib.locale()
 
--------------------------------------------------------------------------------------------
+------------------------------------
 -- prompts and blips if needed
--------------------------------------------------------------------------------------------
+------------------------------------
 CreateThread(function()
     for _, v in pairs(Config.LawOfficeLocations) do
-        exports['rsg-core']:createPrompt(v.prompt, v.coords, RSGCore.Shared.Keybinds[Config.Keybind], Lang:t('lang1'), {
+        exports['rsg-core']:createPrompt(v.prompt, v.coords, RSGCore.Shared.Keybinds[Config.Keybind], locale('cl_open'), {
             type = 'client',
             event = 'rsg-lawman:client:mainmenu',
-            args = { v.jobaccess },
+            args = { v.jobaccess, v.prompt},
         })
         if v.showblip == true then
             local LawMenuBlip = BlipAddForCoords(1664425300, v.coords)
@@ -25,38 +26,39 @@ end)
 ------------------------------------------
 -- main job menu
 ------------------------------------------
-RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
+RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess, name)
     local PlayerData = RSGCore.Functions.GetPlayerData()
     local playerjob = PlayerData.job.name
     if playerjob == jobaccess then
         lib.registerContext({
             id = 'lawoffice_mainmenu',
-            title = Lang:t('lang2'),
+            title = locale('cl_menu'),
             options = {
                 {
-                    title = Lang:t('lang3'),
-                    description = Lang:t('lang4'),
+                    title = locale('cl_boss'),
+                    description = locale('cl_boss_a'),
                     icon = 'fa-solid fa-user-tie',
                     event = 'rsg-bossmenu:client:mainmenu',
                     arrow = true
                 },
                 {
-                    title = Lang:t('lang5'),
+                    title = locale('cl_duty'),
                     icon = 'fa-solid fa-shield-heart',
-                    description = '',
                     event = 'rsg-lawman:client:ToggleDuty',
                     arrow = true
                 },
                 {
-                    title = Lang:t('lang6'),
-                    description = Lang:t('lang7'),
+                    title = locale('cl_armo'),
+                    description = locale('cl_armo_a'),
                     icon = 'fa-solid fa-person-rifle',
-                    event = 'rsg-lawman:client:openarmoury',
+                    onSelect = function()
+                        TriggerEvent('rsg-lawman:client:openarmoury', name)
+                    end,
                     arrow = true
                 },
                 {
-                    title = Lang:t('lang8'),
-                    description = Lang:t('lang9'),
+                    title = locale('cl_trash'),
+                    description = locale('cl_trash_a'),
                     icon = 'fa-solid fa-box-archive',
                     event = 'rsg-lawman:client:openstorage',
                     arrow = true
@@ -65,7 +67,7 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess)
         })
         lib.showContext("lawoffice_mainmenu")
     else
-        lib.notify({ title = Lang:t('lang10'), type = 'error', duration = 5000 })
+        lib.notify({ title = locale('cl_no_job'), type = 'error', duration = 5000 })
     end
 end)
 
@@ -73,12 +75,12 @@ end)
 -- law office armoury
 ------------------------------------------
 RegisterNetEvent('rsg-lawman:client:openarmoury')
-AddEventHandler('rsg-lawman:client:openarmoury', function()
+AddEventHandler('rsg-lawman:client:openarmoury', function(id)
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         if PlayerData.job.type == "leo" and PlayerData.job.grade.level >= Config.ArmouryAccessGrade then
-            TriggerServerEvent('rsg-shops:server:openstore', 'armoury', 'armoury', 'Law Armoury')
-        else
-            lib.notify({ title = Lang:t('lang30'), type = 'error', duration = 7000 })
+            TriggerServerEvent('rsg-shops:server:openstore', 'LawOfficeArmoury', 'LawOfficeArmoury', locale('cl_shop'))
+       else
+            lib.notify({ title = locale('cl_no_rank'), type = 'error', duration = 7000 })
         end
     end)
 end)
@@ -107,7 +109,7 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
         if PlayerData.job.type == "leo" then
             local blip = BlipAddForCoords(joaat('BLIP_STYLE_CREATOR_DEFAULT'), coords.x, coords.y, coords.z)
             local blip2 = BlipAddForCoords(joaat('BLIP_STYLE_COP_PERSISTENT'), coords.x, coords.y, coords.z)
-            local blipText = Lang:t('lang12')..'- %{text}', {value = text}
+            local blipText = locale('cl_alert') .. ' - %{text}', {value = text}
             SetBlipSprite(blip, joaat('blip_ambient_law'))
             SetBlipSprite(blip2, joaat('blip_overlay_ring'))
             BlipAddModifier(blip, joaat('BLIP_MODIFIER_AREA_PULSE'))
@@ -188,13 +190,13 @@ RegisterNetEvent('rsg-lawman:client:cuffplayer', function()
                     TriggerServerEvent('rsg-lawman:server:cuffplayer', playerId, false)
                     -- HandCuffAnimation()
                 else
-                    lib.notify({ title = Lang:t('lang13'), description = Lang:t('lang14'), type = 'error', duration = 5000 })
+                    lib.notify({ title = locale('cl_failed'), description = locale('cl_failed_a'), type = 'error', duration = 5000 })
                 end
             else
-                lib.notify({ title = Lang:t('lang15'), description = Lang:t('lang16'), type = 'error', duration = 5000 })
+                lib.notify({ title = locale('cl_handcuffs'), description = locale('cl_handcuffs_a'), type = 'error', duration = 5000 })
             end
         else
-            lib.notify({ title = Lang:t('lang17'), type = 'error', duration = 5000 })
+            lib.notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
         end
     else
         Wait(2000)
@@ -215,10 +217,10 @@ RegisterNetEvent('rsg-lawman:client:getcuffed', function(playerId, isSoftcuff)
         end
         if not isSoftcuff then
             cuffType = 16
-            lib.notify({ title = Lang:t('lang18'), type = 'inform', duration = 5000 })
+            lib.notify({ title = locale('cl_cuffed'), type = 'inform', duration = 5000 })
         else
             cuffType = 49
-            lib.notify({ title = Lang:t('lang18'), description = Lang:t('lang19'), type = 'inform', duration = 5000 })
+            lib.notify({ title = locale('cl_cuffed'), description = locale('cl_cuffed_a'), type = 'inform', duration = 5000 })
         end
     else
         isHandcuffed = false
@@ -235,7 +237,7 @@ RegisterNetEvent('rsg-lawman:client:getcuffed', function(playerId, isSoftcuff)
         if cuffType == 49 then
             FreezeEntityPosition(cache.ped, false)
         end
-        lib.notify({ title = Lang:t('lang29'), type = 'inform', duration = 5000 })
+        lib.notify({ title = locale('cl_uncuffed'), type = 'inform', duration = 5000 })
     end
 end)
 
@@ -316,7 +318,7 @@ RegisterNetEvent('rsg-lawman:client:escortplayer', function()
             TriggerServerEvent("rsg-lawman:server:escortplayer", playerId)
         end
     else
-        lib.notify({ title = Lang:t('lang17'), type = 'error', duration = 5000 })
+        lib.notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
     end
 end)
 
@@ -351,42 +353,27 @@ RegisterNetEvent('rsg-lawman:client:lawbadge', function()
         if jobname == 'vallaw' or jobname == 'rholaw' or jobname == 'blklaw' or jobname == 'strlaw' or jobname == 'stdenlaw' then
             if badge == false then
                 if not IsPedMale(cache.ped) then -- female
-                    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), 0x0929677D, true, true, true) -- ApplyShopItemToPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
+                    Citizen.InvokeNative(0xD3A7B003ED343FD9, cache.ped, 0x0929677D, true, true, true) -- ApplyShopItemToPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
                 else -- male
-                    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), 0xDB4C451D, true, false, true) -- ApplyShopItemToPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
+                    Citizen.InvokeNative(0xD3A7B003ED343FD9, cache.ped, 0xDB4C451D, true, false, true) -- ApplyShopItemToPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
                 end
-                lib.notify({
-                    title = Lang:t('lang31'),
-                    type = 'inform',
-                    position = 'center-right',
-                    duration = 5000
-                })
+                lib.notify({ title = locale('cl_badge_on'), type = 'inform', position = 'center-right', duration = 5000 })
                 badge = true
             else
                 if not IsPedMale(cache.ped) then -- female
-                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, PlayerPedId(), 0x0929677D, 0, 0) -- RemoveShopItemFromPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
+                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, cache.ped, 0x0929677D, 0, 0) -- RemoveShopItemFromPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
                 else -- male
-                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, PlayerPedId(), 0xDB4C451D, 0, 0) -- RemoveShopItemFromPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
+                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, cache.ped, 0xDB4C451D, 0, 0) -- RemoveShopItemFromPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
                 end
-                lib.notify({
-                    title = Lang:t('lang32'),
-                    type = 'inform',
-                    position = 'center-right',
-                    duration = 5000
-                })
+                lib.notify({ title = locale('cl_badge_off'), type = 'inform', position = 'center-right', duration = 5000 })
                 badge = false
             end
         else
-            lib.notify({
-                title = Lang:t('lang33'),
-                type = 'inform',
-                position = 'center-right',
-                duration = 5000
-            })
+            lib.notify({ title = locale('cl_only_law'),  type = 'inform',  position = 'center-right',  duration = 5000 })
         end
     end)
 end)
@@ -394,28 +381,28 @@ end)
 ------------------------------------------
 -- search other players inventory
 ------------------------------------------
-RegisterNetEvent('rsg-lawman:client:SearchPlayer', function()
+RegisterNetEvent('rsg-lawman:client:searchplayer', function()
     if not IsPedRagdoll(cache.ped) then
-        local player, distance = RSGCore.Functions.GetClosestPlayer()
-        if player ~= -1 and distance < Config.SearchDistance then
-            local playerPed = GetPlayerPed(player)
-            local playerId = GetPlayerServerId(player)
-            local isdead = IsEntityDead(playerPed)
-            local cuffed = IsPedCuffed(playerPed)
-            local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, playerPed)
-            local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, playerPed)
-            local ragdoll = IsPedRagdoll(playerPed)
-            if isdead or cuffed or hogtied or lassoed or ragdoll or IsEntityPlayingAnim(playerPed, "script_proc@robberies@homestead@lonnies_shack@deception", "hands_up_loop", 3) then
-                TriggerServerEvent('rsg-lawman:server:SearchPlayer')
-            else
-                lib.notify({ title = Lang:t('lang37'), type = 'inform', position = 'center-right', duration = 5000 })
+		local player, distance = RSGCore.Functions.GetClosestPlayer()
+		if player ~= -1 and distance < Config.SearchDistance then
+			local playerPed = GetPlayerPed(player)
+			local playerId = GetPlayerServerId(player)
+			local isdead = IsEntityDead(playerPed)
+			local cuffed = IsPedCuffed(playerPed)
+			local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, playerPed)
+			local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, playerPed)
+			local ragdoll = IsPedRagdoll(playerPed)
+			if isdead or cuffed or hogtied or lassoed or ragdoll or IsEntityPlayingAnim(playerPed, "script_proc@robberies@homestead@lonnies_shack@deception", "hands_up_loop", 3) then
+				TriggerServerEvent('rsg-lawman:server:SearchPlayer')
+			else
+                lib.notify({ title = locale('cl_search'), type = 'inform', position = 'center-right', duration = 5000 })
             end
-        else
-            lib.notify({ title = Lang:t('lang35'), type = 'inform', position = 'center-right', duration = 5000 })
-        end
-    else
-        lib.notify({ title = Lang:t('lang36'), type = 'inform', position = 'center-right', duration = 5000 })
-    end
+		else
+			lib.notify({ title = locale('cl_nearby'), type = 'inform', position = 'center-right', duration = 5000 })
+		end
+	else
+		lib.notify({ title = locale('cl_no_be_able'), type = 'inform', position = 'center-right', duration = 5000 })
+	end
 end)
 
 ------------------------------------------
