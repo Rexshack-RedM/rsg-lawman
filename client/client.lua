@@ -78,7 +78,7 @@ RegisterNetEvent('rsg-lawman:client:openarmoury')
 AddEventHandler('rsg-lawman:client:openarmoury', function(id)
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         if PlayerData.job.type == "leo" and PlayerData.job.grade.level >= Config.ArmouryAccessGrade then
-            TriggerServerEvent('rsg-shops:server:openstore', 'LawOfficeArmoury', 'LawOfficeArmoury', locale('cl_shop'))
+            TriggerServerEvent('rsg-shops:server:openstore', 'armoury', 'armoury', locale('cl_shop'))
        else
             lib.notify({ title = locale('cl_no_rank'), type = 'error', duration = 7000 })
         end
