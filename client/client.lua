@@ -383,26 +383,26 @@ end)
 ------------------------------------------
 RegisterNetEvent('rsg-lawman:client:searchplayer', function()
     if not IsPedRagdoll(cache.ped) then
-		local player, distance = RSGCore.Functions.GetClosestPlayer()
-		if player ~= -1 and distance < Config.SearchDistance then
-			local playerPed = GetPlayerPed(player)
-			local playerId = GetPlayerServerId(player)
-			local isdead = IsEntityDead(playerPed)
-			local cuffed = IsPedCuffed(playerPed)
-			local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, playerPed)
-			local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, playerPed)
-			local ragdoll = IsPedRagdoll(playerPed)
-			if isdead or cuffed or hogtied or lassoed or ragdoll or IsEntityPlayingAnim(playerPed, "script_proc@robberies@homestead@lonnies_shack@deception", "hands_up_loop", 3) then
-				TriggerServerEvent('rsg-lawman:server:SearchPlayer')
-			else
+        local player, distance = RSGCore.Functions.GetClosestPlayer()
+        if player ~= -1 and distance < Config.SearchDistance then
+            local playerPed = GetPlayerPed(player)
+            local playerId = GetPlayerServerId(player)
+            local isdead = IsEntityDead(playerPed)
+            local cuffed = IsPedCuffed(playerPed)
+            local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, playerPed)
+            local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, playerPed)
+            local ragdoll = IsPedRagdoll(playerPed)
+            if isdead or cuffed or hogtied or lassoed or ragdoll or IsEntityPlayingAnim(playerPed, "script_proc@robberies@homestead@lonnies_shack@deception", "hands_up_loop", 3) then
+                TriggerServerEvent('rsg-lawman:server:SearchPlayer')
+            else
                 lib.notify({ title = locale('cl_search'), type = 'inform', position = 'center-right', duration = 5000 })
             end
-		else
-			lib.notify({ title = locale('cl_nearby'), type = 'inform', position = 'center-right', duration = 5000 })
-		end
-	else
-		lib.notify({ title = locale('cl_no_be_able'), type = 'inform', position = 'center-right', duration = 5000 })
-	end
+        else
+            lib.notify({ title = locale('cl_nearby'), type = 'inform', position = 'center-right', duration = 5000 })
+        end
+    else
+        lib.notify({ title = locale('cl_no_be_able'), type = 'inform', position = 'center-right', duration = 5000 })
+    end
 end)
 
 ------------------------------------------
