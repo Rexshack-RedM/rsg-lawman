@@ -13,6 +13,10 @@ Config.TrashCollection = 1 -- mins
 Config.ArmouryAccessGrade = 1 -- and greater than
 Config.SearchTime = 10000
 Config.SearchDistance = 2.5
+Config.EnablePlayerDeathAlerts = true    
+Config.EnableNPCDeathAlerts = true      
+Config.AlertCooldown = 30000             
+Config.AlertDistance = 100.0          
 
 -- Law Office Prompt Locations
 Config.LawOfficeLocations =
