@@ -2,7 +2,14 @@ local RSGCore = exports['rsg-core']:GetCoreObject()
 local blipEntries = {}
 local timer = Config.AlertTimer
 local badge = false
+local lastHealth = 0
+local lastPedHealth = {} 
+local lastAlertTime = 0 
+local alertCooldown = 5000 
 lib.locale()
+
+
+
 
 ------------------------------------
 -- prompts and blips if needed
@@ -415,4 +422,147 @@ RegisterNetEvent('rsg-lawman:client:openstorage', function()
             TriggerServerEvent('rsg-lawman:server:storage', jobname)
         end
     end)
+end)
+
+
+
+CreateThread(function()
+    if cache.ped then
+        lastHealth = GetEntityHealth(cache.ped)
+    end
+end)
+
+-- Helper function to get location name
+local function GetLocationName(coords)
+    local town = GetClosestTown(coords)
+    return town or "Unknown Location"
+end
+
+-- Get closest town name
+function GetClosestTown(coords)
+    -- Define major locations in the game
+    local locations = {
+        ["Saint Denis"] = vector3(2683.0, -1455.0, 46.0),
+        ["Valentine"] = vector3(-283.0, 805.0, 119.0),
+        ["Blackwater"] = vector3(-875.0, -1328.0, 43.0),
+        ["Rhodes"] = vector3(1359.0, -1299.0, 77.0),
+        ["Annesburg"] = vector3(2913.0, 1311.0, 44.0),
+        ["Strawberry"] = vector3(-1826.0, -420.0, 160.0),
+        ["Tumbleweed"] = vector3(-5517.0, -2940.0, -2.0),
+        ["Armadillo"] = vector3(-3743.0, -2595.0, -13.0),
+        ["Van Horn"] = vector3(2985.0, 571.0, 44.0),
+    }
+    
+    local closestDist = math.huge
+    local closestLocation = "Wilderness"
+    
+    for name, loc in pairs(locations) do
+        local dist = #(coords - loc)
+        if dist < closestDist then
+            closestDist = dist
+            closestLocation = name
+        end
+    end
+    
+    return closestLocation
+end
+
+local function IsEntityAnimal(entity)
+    if not DoesEntityExist(entity) then return false end
+    
+    local pedType = GetPedType(entity) -- Get the ped type
+    
+    return pedType == 28 -- Animals have ped type 28 in RedM
+end
+
+
+-- Monitor player deaths
+CreateThread(function()
+    while true do
+        Wait(1000) -- Check every second
+        
+        if cache.ped and DoesEntityExist(cache.ped) then
+            local currentHealth = GetEntityHealth(cache.ped)
+            
+            -- Detect if player just died
+            if currentHealth <= 0 and lastHealth > 0 then
+                local coords = GetEntityCoords(cache.ped)
+                local location = GetLocationName(coords)
+                local killer = GetPedSourceOfDeath(cache.ped)
+                
+                -- Ensure killer is valid and not an animal
+                local alertText = "Person Down near " .. location
+                
+                if killer and DoesEntityExist(killer) then
+                    local killerType = GetEntityType(killer)
+                    
+                    if killerType == 1 and IsPedAPlayer(killer) then
+                        alertText = "Murder reported near " .. location
+                    elseif killerType == 1 and not IsEntityAnimal(killer) then
+                        alertText = "Suspicious death near " .. location
+                    end
+                end
+                
+                -- Cooldown system to prevent spam
+                if GetGameTimer() - lastAlertTime > alertCooldown then
+                    TriggerServerEvent('rsg-lawman:server:lawmanAlert', alertText, coords)
+                    lastAlertTime = GetGameTimer()
+                end
+            end
+            
+            lastHealth = currentHealth
+        end
+    end
+end)
+
+CreateThread(function()
+    while true do
+        Wait(1000)
+        
+        if cache.ped and DoesEntityExist(cache.ped) then
+            local playerCoords = GetEntityCoords(cache.ped)
+            local peds = GetGamePool('CPed')
+            
+            for _, ped in ipairs(peds) do
+                if ped ~= cache.ped and not IsPedAPlayer(ped) and not IsEntityAnimal(ped) then
+                    local currentHealth = GetEntityHealth(ped)
+                    local lastPedHealthValue = lastPedHealth[ped] or currentHealth
+                    
+                    -- Detect if NPC just died
+                    if currentHealth <= 0 and lastPedHealthValue > 0 then
+                        local pedCoords = GetEntityCoords(ped)
+                        local distance = #(playerCoords - pedCoords)
+                        
+                        -- Only alert for deaths within 50 units
+                        if distance <= 50.0 then
+                            local location = GetLocationName(pedCoords)
+                            local killer = GetPedSourceOfDeath(ped)
+                            
+                            local alertText = "Civilian Down near " .. location
+                            
+                            -- Add context if killed by player
+                            if killer == cache.ped then
+                                alertText = "Shooting civilians near " .. location
+                            end
+                            
+                            -- Cooldown system to prevent spam
+                            if GetGameTimer() - lastAlertTime > alertCooldown then
+                                TriggerServerEvent('rsg-lawman:server:lawmanAlert', alertText, pedCoords)
+                                lastAlertTime = GetGameTimer()
+                            end
+                        end
+                    end
+                    
+                    lastPedHealth[ped] = currentHealth
+                end
+            end
+            
+            -- Cleanup old ped entries
+            for ped in pairs(lastPedHealth) do
+                if not DoesEntityExist(ped) then
+                    lastPedHealth[ped] = nil
+                end
+            end
+        end
+    end
 end)
