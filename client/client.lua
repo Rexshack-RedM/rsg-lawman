@@ -8,9 +8,6 @@ local lastAlertTime = 0
 local alertCooldown = 5000 
 lib.locale()
 
-
-
-
 ------------------------------------
 -- prompts and blips if needed
 ------------------------------------
@@ -424,8 +421,6 @@ RegisterNetEvent('rsg-lawman:client:openstorage', function()
     end)
 end)
 
-
-
 CreateThread(function()
     if cache.ped then
         lastHealth = GetEntityHealth(cache.ped)
@@ -493,15 +488,15 @@ CreateThread(function()
                 local killer = GetPedSourceOfDeath(cache.ped)
                 
                 -- Ensure killer is valid and not an animal
-                local alertText = "Person Down near " .. location
+                local alertText = locale('cl_lang_1') .. location
                 
                 if killer and DoesEntityExist(killer) then
                     local killerType = GetEntityType(killer)
                     
                     if killerType == 1 and IsPedAPlayer(killer) then
-                        alertText = "Murder reported near " .. location
+                        alertText = locale('cl_lang_2') .. location
                     elseif killerType == 1 and not IsEntityAnimal(killer) then
-                        alertText = "Suspicious death near " .. location
+                        alertText = locale('cl_lang_3') .. location
                     end
                 end
                 
@@ -543,11 +538,11 @@ CreateThread(function()
                             local location = GetLocationName(pedCoords)
                             local killer = GetPedSourceOfDeath(ped)
                             
-                            local alertText = "Civilian Down near " .. location
+                            local alertText = locale('cl_lang_4') .. location
                             
                             -- Add context if killed by player
                             if killer == cache.ped then
-                                alertText = "Shooting civilians near " .. location
+                                alertText = locale('cl_lang_5') .. location
                             end
                             
                             -- Cooldown system to prevent spam

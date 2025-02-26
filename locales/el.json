@@ -25,6 +25,11 @@
     "cl_only_law" : "μόνο οι αστυνομικοί μπορούν να το κάνουν αυτό",
     "cl_search" : "Δεν είναι δυνατή η έρευνα παίκτη",
     "cl_no_be_able" : "Δεν μπορείς να το κάνεις αυτό!",
+    "cl_lang_1" : "Person Down near ",
+    "cl_lang_2" : "Murder reported near ",
+    "cl_lang_3" : "Suspicious death near ",
+    "cl_lang_4" : "Civilian Down near ",
+    "cl_lang_5" : "Shooting civilians near ",
 
     "sv_test" : "αποστολή δοκιμαστικής ειδοποίησης",
     "sv_test_a" : "δοκιμή",

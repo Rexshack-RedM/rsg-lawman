@@ -25,6 +25,11 @@
     "cl_only_law" : "seuls les agents de la loi peuvent faire cela",
     "cl_search" : "Impossible de fouiller le joueur",
     "cl_no_be_able" : "Impossible de faire ça !",
+    "cl_lang_1" : "Person Down near ",
+    "cl_lang_2" : "Murder reported near ",
+    "cl_lang_3" : "Suspicious death near ",
+    "cl_lang_4" : "Civilian Down near ",
+    "cl_lang_5" : "Shooting civilians near ",
 
     "sv_test" : "envoyer une alerte de test",
     "sv_test_a" : "test en cours",

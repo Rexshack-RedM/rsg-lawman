@@ -25,6 +25,11 @@
     "cl_only_law" : "only law can do this",
     "cl_search" : "Not able to search player",
     "cl_no_be_able" : "Not be able to do that!",
+    "cl_lang_1" : "Person Down near ",
+    "cl_lang_2" : "Murder reported near ",
+    "cl_lang_3" : "Suspicious death near ",
+    "cl_lang_4" : "Civilian Down near ",
+    "cl_lang_5" : "Shooting civilians near ",
 
     "sv_test" : "send test alert",
     "sv_test_a" : "testing",

@@ -25,6 +25,11 @@
     "cl_only_law" : "solo la ley puede hacer esto",
     "cl_search" : "No se puede registrar al jugador",
     "cl_no_be_able" : "¡No es posible hacer eso!",
+    "cl_lang_1" : "Person Down near ",
+    "cl_lang_2" : "Murder reported near ",
+    "cl_lang_3" : "Suspicious death near ",
+    "cl_lang_4" : "Civilian Down near ",
+    "cl_lang_5" : "Shooting civilians near ",
 
     "sv_test" : "enviar alerta de prueba",
     "sv_test_a" : "probando",

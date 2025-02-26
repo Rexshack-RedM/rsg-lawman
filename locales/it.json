@@ -25,6 +25,11 @@
     "cl_only_law" : "solo la legge possono fare questo",
     "cl_search" : "Non puoi perquisire il giocatore",
     "cl_no_be_able" : "Non puoi farlo!",
+    "cl_lang_1" : "Person Down near ",
+    "cl_lang_2" : "Murder reported near ",
+    "cl_lang_3" : "Suspicious death near ",
+    "cl_lang_4" : "Civilian Down near ",
+    "cl_lang_5" : "Shooting civilians near ",
 
     "sv_test" : "invia avviso di prova",
     "sv_test_a" : "test in corso",
