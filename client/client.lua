@@ -475,9 +475,11 @@ local function IsEntityAnimal(entity)
     return pedType == 28 -- Animals have ped type 28 in RedM
 end
 
-
 -- Monitor player deaths
 CreateThread(function()
+    -- Only run this thread if player death alerts are enabled
+    if not Config.EnablePlayerDeathAlerts then return end
+    
     while true do
         Wait(1000) -- Check every second
         
@@ -516,6 +518,9 @@ CreateThread(function()
 end)
 
 CreateThread(function()
+    -- Only run this thread if NPC death alerts are enabled
+    if not Config.EnableNPCDeathAlerts then return end
+    
     while true do
         Wait(1000)
         
@@ -533,8 +538,8 @@ CreateThread(function()
                         local pedCoords = GetEntityCoords(ped)
                         local distance = #(playerCoords - pedCoords)
                         
-                        -- Only alert for deaths within 50 units
-                        if distance <= 50.0 then
+                        -- Only alert for deaths within configured distance
+                        if distance <= Config.AlertDistance then
                             local location = GetLocationName(pedCoords)
                             local killer = GetPedSourceOfDeath(ped)
                             
