@@ -16,7 +16,7 @@ end)
 ------------------------------------------
 RSGCore.Commands.Add('searchplayer', locale('sv_searchplayer'), {}, false, function(source)
     local src = source
-    TriggerClientEvent('rsg-lawman:client:SearchPlayer', src)
+    TriggerClientEvent('rsg-lawman:client:searchplayer', src)
 end)
 
 RegisterNetEvent('rsg-lawman:server:SearchPlayer', function()
