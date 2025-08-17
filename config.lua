@@ -7,6 +7,7 @@ Config.Debug = false
 Config.AddGPSRoute = true
 Config.AlertTimer = 60
 Config.Keybind = 'J'
+Config.MDTKeybind = 'M'
 Config.StorageMaxWeight = 4000000
 Config.StorageMaxSlots = 50
 Config.TrashCollection = 1 -- mins

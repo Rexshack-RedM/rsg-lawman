@@ -52,6 +52,13 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess, name)
                     arrow = true
                 },
                 {
+                    title = "Sheriffs Archivesl",
+                    description = "Access law enforcement database",
+                    icon = 'fa-solid fa-tablet-alt',
+                    event = 'rsg-lawman:client:openMDT',
+                    arrow = true
+                },
+                {
                     title = locale('cl_armo'),
                     description = locale('cl_armo_a'),
                     icon = 'fa-solid fa-person-rifle',
@@ -565,4 +572,23 @@ CreateThread(function()
             end
         end
     end
+end)
+
+------------------------------------------
+-- MDT Keybind
+------------------------------------------
+CreateThread(function()
+    while true do
+        Wait(0)
+        if IsControlJustReleased(0, 0x80F28E95) then -- M key
+            local PlayerData = RSGCore.Functions.GetPlayerData()
+            if PlayerData.job.type == "leo" then
+                TriggerServerEvent('rsg-lawman:server:checkMDTAccess')
+            end
+        end
+    end
+end)
+
+RegisterNetEvent('rsg-lawman:client:openMDTFromKeybind', function()
+    TriggerEvent('rsg-lawman:client:openMDT')
 end)
