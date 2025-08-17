@@ -107,3 +107,21 @@ CREATE TABLE IF NOT EXISTS `mdt_logs` (
   KEY `log_type` (`log_type`),
   KEY `officer_id` (`officer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Table for Bounty Alerts
+CREATE TABLE IF NOT EXISTS `mdt_bounty_alerts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `target_citizenid` varchar(50) NOT NULL,
+  `reason` text NOT NULL,
+  `reward` int(11) NOT NULL DEFAULT '0',
+  `issued_by` varchar(50) NOT NULL,
+  `claimed_by` varchar(50) DEFAULT NULL,
+  `status` enum('active','claimed','expired') NOT NULL DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `expires_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `target_citizenid` (`target_citizenid`),
+  KEY `status` (`status`),
+  KEY `claimed_by` (`claimed_by`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
