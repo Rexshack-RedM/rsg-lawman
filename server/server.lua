@@ -251,3 +251,16 @@ RegisterServerEvent('rsg-lawman:server:storage', function(jobname)
     local stashName = 'lawstorage' .. jobname
     exports['rsg-inventory']:OpenInventory(src, stashName, data)
 end)
+
+---------------------------------
+-- update outlaw status
+---------------------------------
+RegisterServerEvent('rsg-lawman:server:updateoutlawstatus', function(amount, reason)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    if not Player then return end
+    local citizenid = Player.PlayerData.citizenid
+    local result = MySQL.query.await('SELECT outlawstatus FROM players WHERE citizenid = ?', { citizenid})
+    local newoutlawstatus = (result[1].outlawstatus + amount)
+    MySQL.update('UPDATE players SET outlawstatus = ? WHERE citizenid = ?', { newoutlawstatus, citizenid })
+end)
