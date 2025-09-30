@@ -61,5 +61,7 @@
     "sv_cuff" : "Cuff Player (Law Only)",
     "sv_escort" : "Escort Player (Law Only)",
     "sv_handcuffedordead" : "Player isn't cuffed or dead",
-    "sv_storage" : "Law Storage"
+    "sv_storage" : "Law Storage",
+    "jail_player_header" : "Jail player [%s]",
+    "jail_player_time_label" : "Minutes"
 }
