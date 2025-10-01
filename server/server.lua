@@ -122,7 +122,7 @@ RSGCore.Commands.Add('jail', locale('sv_jail'), {{name = 'id', help =  locale('s
         local playerId = tonumber(args[1])
         local time = tonumber(args[2])
         if time > 0 then
-            TriggerClientEvent('rsg-lawman:client:jailplayer', src, playerId, time)
+            jailPlayerByPlayer(playerId, src, time)
         else
             TriggerClientEvent('ox_lib:notify', src, {title = locale('sv_jail_c'), description = locale('sv_jail_d'), type = 'inform', duration = 5000 })
         end
@@ -132,10 +132,11 @@ end)
 --------------------------------------------------------------------------------------------------
 -- jail player
 --------------------------------------------------------------------------------------------------
-RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
-    local src = source
-    local Player = RSGCore.Functions.GetPlayer(src)
-    local OtherPlayer = RSGCore.Functions.GetPlayer(playerId)
+function jailPlayerByPlayer(targetPlayer, byPlayer, minutes)
+    local Player = RSGCore.Functions.GetPlayer(byPlayer)
+    local OtherPlayer = RSGCore.Functions.GetPlayer(targetPlayer)
+    local time = minutes
+    
     local currentDate = os.date('*t')
     if currentDate.day == 31 then
         currentDate.day = 30
@@ -146,9 +147,13 @@ RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, time)
             OtherPlayer.Functions.SetMetaData('injail', time)
             OtherPlayer.Functions.SetMetaData('criminalrecord', { ['hasRecord'] = true, ['date'] = currentDate })
             TriggerClientEvent('rsg-lawman:client:sendtojail', OtherPlayer.PlayerData.source, time)
-            TriggerClientEvent('ox_lib:notify', src, {title =  locale('sv_injail') .. ' ' .. time, type = 'success', duration = 5000 })
+            TriggerClientEvent('ox_lib:notify', byPlayer, {title =  locale('sv_injail') .. ' ' .. time, type = 'success', duration = 5000 })
         end
     end
+end
+
+RegisterNetEvent('rsg-lawman:server:jailplayer', function(playerId, minutes)
+    jailPlayerByPlayer(playerId, source, minutes)
 end)
 
 ------------------------------------------

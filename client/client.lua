@@ -93,7 +93,42 @@ end)
 -- send player to jail
 ------------------------------------------
 RegisterNetEvent('rsg-lawman:client:jailplayer', function(playerId, time)
-    TriggerServerEvent('rsg-lawman:server:jailplayer', playerId, tonumber(time))
+    if playerId and time then
+        -- Jail specific player
+        TriggerServerEvent('rsg-lawman:server:jailplayer', playerId, tonumber(time))
+    else
+        -- Jail closest player
+        if not IsPedRagdoll(cache.ped) then
+            local distanceRequirement = 1.5
+
+            local player, distance = RSGCore.Functions.GetClosestPlayer()
+            if player == -1 or distance >= distanceRequirement then
+                lib.notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
+                return
+            end
+
+            local playerId = GetPlayerServerId(player)
+            local input = lib.inputDialog(locale('jail_player_header', playerId), {
+                {
+                    type = 'input',
+                    label = locale('jail_player_time_label'),
+                    required = true,
+                },
+            })
+            if not input or not input[1] then
+                return
+            end
+
+            local time = tonumber(input[1])
+            local player, distance = RSGCore.Functions.GetClosestPlayer()
+            if player == -1 or distance >= distanceRequirement or GetPlayerServerId(player) ~= playerId then
+                lib.notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
+                return
+            end
+
+            TriggerServerEvent('rsg-lawman:server:jailplayer', playerId, time)
+        end
+    end
 end)
 
 RegisterNetEvent('rsg-lawman:client:sendtojail', function(time)
