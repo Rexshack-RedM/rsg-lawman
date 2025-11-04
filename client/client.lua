@@ -3,9 +3,9 @@ local blipEntries = {}
 local timer = Config.AlertTimer
 local badge = false
 local lastHealth = 0
-local lastPedHealth = {} 
-local lastAlertTime = 0 
-local alertCooldown = 5000 
+local lastPedHealth = {}
+local lastAlertTime = 0
+local alertCooldown = 5000
 lib.locale()
 
 ------------------------------------
@@ -13,14 +13,15 @@ lib.locale()
 ------------------------------------
 CreateThread(function()
     for _, v in pairs(Config.LawOfficeLocations) do
-        exports['rsg-core']:createPrompt(v.prompt, v.coords, RSGCore.Shared.Keybinds[Config.Keybind], locale('cl_open'), {
-            type = 'client',
-            event = 'rsg-lawman:client:mainmenu',
-            args = { v.jobaccess, v.prompt},
-        })
+        exports['rsg-core']:createPrompt(v.prompt, v.coords, RSGCore.Shared.Keybinds[Config.Keybind], locale('cl_open'),
+            {
+                type = 'client',
+                event = 'rsg-lawman:client:mainmenu',
+                args = { v.jobaccess, v.prompt },
+            })
         if v.showblip == true then
             local LawMenuBlip = BlipAddForCoords(1664425300, v.coords)
-            SetBlipSprite(LawMenuBlip,  joaat(v.blipsprite), true)
+            SetBlipSprite(LawMenuBlip, joaat(v.blipsprite), true)
             SetBlipScale(LawMenuBlip, v.blipscale)
             SetBlipName(LawMenuBlip, v.name)
         end
@@ -83,7 +84,7 @@ AddEventHandler('rsg-lawman:client:openarmoury', function(id)
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         if PlayerData.job.type == "leo" and PlayerData.job.grade.level >= Config.ArmouryAccessGrade then
             TriggerServerEvent('rsg-shops:server:openstore', 'armoury', 'armoury', locale('cl_shop'))
-       else
+        else
             lib.notify({ title = locale('cl_no_rank'), type = 'error', duration = 7000 })
         end
     end)
@@ -148,7 +149,7 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
         if PlayerData.job.type == "leo" then
             local blip = BlipAddForCoords(joaat('BLIP_STYLE_CREATOR_DEFAULT'), coords.x, coords.y, coords.z)
             local blip2 = BlipAddForCoords(joaat('BLIP_STYLE_COP_PERSISTENT'), coords.x, coords.y, coords.z)
-            local blipText = locale('cl_alert') .. ' - %{text}', {value = text}
+            local blipText = locale('cl_alert') .. ' - %{text}', { value = text }
             SetBlipSprite(blip, joaat('blip_ambient_law'))
             SetBlipSprite(blip2, joaat('blip_overlay_ring'))
             BlipAddModifier(blip, joaat('BLIP_MODIFIER_AREA_PULSE'))
@@ -158,8 +159,8 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
             SetBlipName(blip, text)
             SetBlipName(blip2, text)
 
-            blipEntries[#blipEntries + 1] = {coords = coords, handle = blip}
-            blipEntries[#blipEntries + 1] = {coords = coords, handle = blip2}
+            blipEntries[#blipEntries + 1] = { coords = coords, handle = blip }
+            blipEntries[#blipEntries + 1] = { coords = coords, handle = blip2 }
 
             -- Add GPS Route
 
@@ -172,7 +173,7 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
             -- send notifcation
             lib.notify({ title = text, type = 'inform', duration = 7000 })
 
-            CreateThread(function ()
+            CreateThread(function()
                 while timer ~= 0 do
                     Wait(180 * 4)
 
@@ -181,7 +182,7 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
                     timer = timer - 1
 
                     if Config.Debug then
-                        print('Distance to Alert Blip: '..tostring(distance)..' metres')
+                        print('Distance to Alert Blip: ' .. tostring(distance) .. ' metres')
                     end
 
                     if timer <= 0 or distance < 5.0 then
@@ -192,8 +193,8 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
                             if coords == bcoords then
                                 if Config.Debug then
                                     print('')
-                                    print('Blip Coords: '..tostring(bcoords))
-                                    print('Blip Removed: '..tostring(blipEntries[i].handle))
+                                    print('Blip Coords: ' .. tostring(bcoords))
+                                    print('Blip Removed: ' .. tostring(blipEntries[i].handle))
                                     print('')
                                 end
 
@@ -313,14 +314,14 @@ CreateThread(function()
             DisableControlAction(0, 0xE30CD707, true) -- R
         end
 
-        if cuffType == 16 and isHandcuffed then  -- soft cuff
+        if cuffType == 16 and isHandcuffed then -- soft cuff
             SetEnableHandcuffs(cache.ped, true)
             DisablePlayerFiring(cache.ped, true)
             SetPedCanPlayGestureAnims(cache.ped, false)
             DisplayRadar(false)
         end
 
-        if cuffType == 49 and isHandcuffed then  -- hard cuff
+        if cuffType == 49 and isHandcuffed then -- hard cuff
             SetEnableHandcuffs(cache.ped, true)
             DisablePlayerFiring(cache.ped, true)
             SetPedCanPlayGestureAnims(cache.ped, false)
@@ -373,7 +374,8 @@ RegisterNetEvent('rsg-lawman:client:getescorted', function(playerId)
                 draggerId = playerId
                 local dragger = GetPlayerPed(GetPlayerFromServerId(playerId))
                 SetEntityCoords(cache.ped, GetOffsetFromEntityInWorldCoords(dragger, 0.0, 0.45, 0.0))
-                AttachEntityToEntity(cache.ped, dragger, 11816, 0.45, 0.45, 0.0, 0.0, 0.0, 0.0, false, false, false, false, 2, true)
+                AttachEntityToEntity(cache.ped, dragger, 11816, 0.45, 0.45, 0.0, 0.0, 0.0, 0.0, false, false, false,
+                    false, 2, true)
             else
                 isEscorted = false
                 TriggerServerEvent('rsg-lawman:server:setescortstatus', false)
@@ -389,30 +391,30 @@ end)
 RegisterNetEvent('rsg-lawman:client:lawbadge', function()
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         local jobname = PlayerData.job.name
-        if jobname == 'vallaw' or jobname == 'rholaw' or jobname == 'blklaw' or jobname == 'strlaw' or jobname == 'stdenlaw' then
+        if Config.LawJobs[jobname] then
             if badge == false then
-                if not IsPedMale(cache.ped) then -- female
-                    Citizen.InvokeNative(0xD3A7B003ED343FD9, cache.ped, 0x0929677D, true, true, true) -- ApplyShopItemToPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
-                else -- male
+                if not IsPedMale(cache.ped) then                                                       -- female
+                    Citizen.InvokeNative(0xD3A7B003ED343FD9, cache.ped, 0x0929677D, true, true, true)  -- ApplyShopItemToPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false)             -- UpdatePedVariation
+                else                                                                                   -- male
                     Citizen.InvokeNative(0xD3A7B003ED343FD9, cache.ped, 0xDB4C451D, true, false, true) -- ApplyShopItemToPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false)             -- UpdatePedVariation
                 end
                 lib.notify({ title = locale('cl_badge_on'), type = 'inform', position = 'center-right', duration = 5000 })
                 badge = true
             else
-                if not IsPedMale(cache.ped) then -- female
-                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, cache.ped, 0x0929677D, 0, 0) -- RemoveShopItemFromPed
+                if not IsPedMale(cache.ped) then                                           -- female
+                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, cache.ped, 0x0929677D, 0, 0)  -- RemoveShopItemFromPed
                     Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
-                else -- male
-                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, cache.ped, 0xDB4C451D, 0, 0) -- RemoveShopItemFromPed
+                else                                                                       -- male
+                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, cache.ped, 0xDB4C451D, 0, 0)  -- RemoveShopItemFromPed
                     Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
                 end
                 lib.notify({ title = locale('cl_badge_off'), type = 'inform', position = 'center-right', duration = 5000 })
                 badge = false
             end
         else
-            lib.notify({ title = locale('cl_only_law'),  type = 'inform',  position = 'center-right',  duration = 5000 })
+            lib.notify({ title = locale('cl_only_law'), type = 'inform', position = 'center-right', duration = 5000 })
         end
     end)
 end)
@@ -482,10 +484,10 @@ function GetClosestTown(coords)
         ["Armadillo"] = vector3(-3743.0, -2595.0, -13.0),
         ["Van Horn"] = vector3(2985.0, 571.0, 44.0),
     }
-    
+
     local closestDist = math.huge
     local closestLocation = "Wilderness"
-    
+
     for name, loc in pairs(locations) do
         local dist = #(coords - loc)
         if dist < closestDist then
@@ -493,55 +495,55 @@ function GetClosestTown(coords)
             closestLocation = name
         end
     end
-    
+
     return closestLocation
 end
 
 local function IsEntityAnimal(entity)
     if not DoesEntityExist(entity) then return false end
-    
+
     local pedType = GetPedType(entity) -- Get the ped type
-    
-    return pedType == 28 -- Animals have ped type 28 in RedM
+
+    return pedType == 28               -- Animals have ped type 28 in RedM
 end
 
 -- Monitor player deaths
 CreateThread(function()
     -- Only run this thread if player death alerts are enabled
     if not Config.EnablePlayerDeathAlerts then return end
-    
+
     while true do
         Wait(1000) -- Check every second
-        
+
         if cache.ped and DoesEntityExist(cache.ped) then
             local currentHealth = GetEntityHealth(cache.ped)
-            
+
             -- Detect if player just died
             if currentHealth <= 0 and lastHealth > 0 then
                 local coords = GetEntityCoords(cache.ped)
                 local location = GetLocationName(coords)
                 local killer = GetPedSourceOfDeath(cache.ped)
-                
+
                 -- Ensure killer is valid and not an animal
                 local alertText = locale('cl_lang_1') .. location
-                
+
                 if killer and DoesEntityExist(killer) then
                     local killerType = GetEntityType(killer)
-                    
+
                     if killerType == 1 and IsPedAPlayer(killer) then
                         alertText = locale('cl_lang_2') .. location
                     elseif killerType == 1 and not IsEntityAnimal(killer) then
                         alertText = locale('cl_lang_3') .. location
                     end
                 end
-                
+
                 -- Cooldown system to prevent spam
                 if GetGameTimer() - lastAlertTime > alertCooldown then
                     TriggerServerEvent('rsg-lawman:server:lawmanAlert', alertText, coords)
                     lastAlertTime = GetGameTimer()
                 end
             end
-            
+
             lastHealth = currentHealth
         end
     end
@@ -550,36 +552,36 @@ end)
 CreateThread(function()
     -- Only run this thread if NPC death alerts are enabled
     if not Config.EnableNPCDeathAlerts then return end
-    
+
     while true do
         Wait(1000)
-        
+
         if cache.ped and DoesEntityExist(cache.ped) then
             local playerCoords = GetEntityCoords(cache.ped)
             local peds = GetGamePool('CPed')
-            
+
             for _, ped in ipairs(peds) do
                 if ped ~= cache.ped and not IsPedAPlayer(ped) and not IsEntityAnimal(ped) then
                     local currentHealth = GetEntityHealth(ped)
                     local lastPedHealthValue = lastPedHealth[ped] or currentHealth
-                    
+
                     -- Detect if NPC just died
                     if currentHealth <= 0 and lastPedHealthValue > 0 then
                         local pedCoords = GetEntityCoords(ped)
                         local distance = #(playerCoords - pedCoords)
-                        
+
                         -- Only alert for deaths within configured distance
                         if distance <= Config.AlertDistance then
                             local location = GetLocationName(pedCoords)
                             local killer = GetPedSourceOfDeath(ped)
-                            
+
                             local alertText = locale('cl_lang_4') .. location
-                            
+
                             -- Add context if killed by player
                             if killer == cache.ped then
                                 alertText = locale('cl_lang_5') .. location
                             end
-                            
+
                             -- Cooldown system to prevent spam
                             if GetGameTimer() - lastAlertTime > alertCooldown then
                                 TriggerServerEvent('rsg-lawman:server:lawmanAlert', alertText, pedCoords)
@@ -587,11 +589,11 @@ CreateThread(function()
                             end
                         end
                     end
-                    
+
                     lastPedHealth[ped] = currentHealth
                 end
             end
-            
+
             -- Cleanup old ped entries
             for ped in pairs(lastPedHealth) do
                 if not DoesEntityExist(ped) then
