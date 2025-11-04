@@ -45,8 +45,7 @@ RSGCore.Commands.Add('lawbadge', locale('sv_lawbadge'), {}, false, function(sour
     local Player = RSGCore.Functions.GetPlayer(src)
     local jobname = Player.PlayerData.job.name
     local onduty = Player.PlayerData.job.onduty
-
-    if onduty and Config.LawJobs[jobname] then
+    if onduty and jobname == Config.LawJobs[jobname] then
         TriggerClientEvent('rsg-lawman:client:lawbadge', src)
     else
         TriggerClientEvent('ox_lib:notify', src, { title = locale('sv_need_duty'), type = 'error', duration = 5000 })

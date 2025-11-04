@@ -391,7 +391,7 @@ end)
 RegisterNetEvent('rsg-lawman:client:lawbadge', function()
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         local jobname = PlayerData.job.name
-        if Config.LawJobs[jobname] then
+        if jobname == Config.LawJobs[jobname] then
             if badge == false then
                 if not IsPedMale(cache.ped) then                                                       -- female
                     Citizen.InvokeNative(0xD3A7B003ED343FD9, cache.ped, 0x0929677D, true, true, true)  -- ApplyShopItemToPed
