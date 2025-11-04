@@ -11,15 +11,6 @@ RSGCore.Commands.Add('testalert', locale('sv_test'), {}, false, function(source)
     TriggerClientEvent('rsg-lawman:client:lawmanAlert', src, playerCoords, text)
 end)
 
-function IsLawJob(jobname)
-    for _, job in ipairs(Config.LawJobs) do
-        if jobname == job then
-            return true
-        end
-    end
-    return false
-end
-
 ------------------------------------------
 -- search players inventory
 ------------------------------------------
