@@ -9,19 +9,19 @@ Config.AlertTimer = 60
 Config.Keybind = 'J'
 Config.StorageMaxWeight = 4000000
 Config.StorageMaxSlots = 50
-Config.TrashCollection = 1 -- mins
+Config.TrashCollection = 1    -- mins
 Config.ArmouryAccessGrade = 1 -- and greater than
 Config.SearchTime = 10000
 Config.SearchDistance = 2.5
-Config.EnablePlayerDeathAlerts = false    
-Config.EnableNPCDeathAlerts = false     
-Config.AlertCooldown = 30000             
-Config.AlertDistance = 100.0             
+Config.EnablePlayerDeathAlerts = false
+Config.EnableNPCDeathAlerts = false
+Config.AlertCooldown = 30000
+Config.AlertDistance = 100.0
 
 -- Law Office Prompt Locations
 Config.LawOfficeLocations =
 {
-    {   -- valentine
+    { -- valentine
         name = 'Lawman Office',
         prompt = 'vallawoffice',
         coords = vector3(-278.42, 805.29, 119.38),
@@ -30,7 +30,7 @@ Config.LawOfficeLocations =
         blipscale = 0.2,
         showblip = true
     },
-    {   -- rhodes
+    { -- rhodes
         name = 'Lawman Office',
         prompt = 'rholawoffice',
         coords = vector3(1362.04, -1302.10, 77.77),
@@ -39,7 +39,7 @@ Config.LawOfficeLocations =
         blipscale = 0.2,
         showblip = true
     },
-    {   -- blackwater
+    { -- blackwater
         name = 'Lawman Office',
         prompt = 'blklawoffice',
         coords = vector3(-761.76, -1268.18, 44.04),
@@ -48,7 +48,7 @@ Config.LawOfficeLocations =
         blipscale = 0.2,
         showblip = true
     },
-    {   -- strawberry
+    { -- strawberry
         name = 'Lawman Office',
         prompt = 'strlawoffice',
         coords = vector3(-1811.95, -353.94, 164.65),
@@ -57,7 +57,7 @@ Config.LawOfficeLocations =
         blipscale = 0.2,
         showblip = true
     },
-    {   -- saint denis
+    { -- saint denis
         name = 'Lawman Office',
         prompt = 'stdenlawoffice',
         coords = vector3(2507.72, -1301.89, 48.95),
@@ -68,4 +68,10 @@ Config.LawOfficeLocations =
     },
 }
 
-Config.LawJobs = { 'vallaw' , 'rholaw', 'blklaw', 'strlaw', 'stdenlaw' }
+Config.LawJobs = {
+    ['vallaw'] = true,
+    ['rholaw'] = true,
+    ['blklaw'] = true,
+    ['strlaw'] = true,
+    ['stdenlaw'] = true,
+}

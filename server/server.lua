@@ -29,9 +29,11 @@ RegisterNetEvent('rsg-lawman:server:SearchPlayer', function()
         local SearchedPlayer = RSGCore.Functions.GetPlayer(tonumber(player))
         if not SearchedPlayer then return end
         exports['rsg-inventory']:OpenInventoryById(src, tonumber(player))
-        TriggerClientEvent('ox_lib:notify', player, {title = locale('sv_info'), description = locale('sv_info_a'), type = 'info', duration = 7000 })
+        TriggerClientEvent('ox_lib:notify', player,
+            { title = locale('sv_info'), description = locale('sv_info_a'), type = 'info', duration = 7000 })
     else
-        TriggerClientEvent('ox_lib:notify', src, {title = locale('sv_error'), description = locale('sv_error_a'), type = 'error', duration = 7000 })
+        TriggerClientEvent('ox_lib:notify', src,
+            { title = locale('sv_error'), description = locale('sv_error_a'), type = 'error', duration = 7000 })
     end
 end)
 
@@ -43,10 +45,10 @@ RSGCore.Commands.Add('lawbadge', locale('sv_lawbadge'), {}, false, function(sour
     local Player = RSGCore.Functions.GetPlayer(src)
     local jobname = Player.PlayerData.job.name
     local onduty = Player.PlayerData.job.onduty
-    if onduty and jobname == 'vallaw' or jobname == 'rholaw' or jobname == 'blklaw' or jobname == 'strlaw' or jobname == 'stdenlaw' then
+    if onduty and Config.LawJobs[jobname] then
         TriggerClientEvent('rsg-lawman:client:lawbadge', src)
     else
-        TriggerClientEvent('ox_lib:notify', src, {title = locale('sv_need_duty'), type = 'error', duration = 5000 })
+        TriggerClientEvent('ox_lib:notify', src, { title = locale('sv_need_duty'), type = 'error', duration = 5000 })
     end
 end)
 
@@ -65,32 +67,38 @@ RSGCore.Functions.CreateCallback('rsg-lawman:server:getlaw', function(source, cb
 end)
 
 -- Add 'unjail' command
-RSGCore.Commands.Add('unjail', locale('sv_unjail'), {{name = 'id', help = locale('sv_unjail_id')}}, true, function(source, args)
-    local src = source
-    local Player = RSGCore.Functions.GetPlayer(src)
+RSGCore.Commands.Add('unjail', locale('sv_unjail'), { { name = 'id', help = locale('sv_unjail_id') } }, true,
+    function(source, args)
+        local src = source
+        local Player = RSGCore.Functions.GetPlayer(src)
 
-    if Player.PlayerData.job.type == 'leo' then    -- Check if the player issuing the command is a law enforcement officer
-        local playerId = tonumber(args[1])
-        if playerId then
-            local TargetPlayer = RSGCore.Functions.GetPlayer(playerId)
-            if TargetPlayer then
-                -- Trigger the unjail event for the target player
-                TriggerClientEvent('rsg-prison:client:freedom', TargetPlayer.PlayerData.source)
-                -- Notify the player issuing the command
-                TriggerClientEvent('ox_lib:notify', src, {title = locale('sv_unjail_b'), description = locale('sv_unjail_c'), type = 'success', duration = 5000})
-                -- Optionally notify the target player
-                TriggerClientEvent('ox_lib:notify', TargetPlayer.PlayerData.source, { title = locale('sv_unjail_d'), description = locale('sv_unjail_e'), type = 'success', duration = 5000})
+        if Player.PlayerData.job.type == 'leo' then -- Check if the player issuing the command is a law enforcement officer
+            local playerId = tonumber(args[1])
+            if playerId then
+                local TargetPlayer = RSGCore.Functions.GetPlayer(playerId)
+                if TargetPlayer then
+                    -- Trigger the unjail event for the target player
+                    TriggerClientEvent('rsg-prison:client:freedom', TargetPlayer.PlayerData.source)
+                    -- Notify the player issuing the command
+                    TriggerClientEvent('ox_lib:notify', src,
+                        { title = locale('sv_unjail_b'), description = locale('sv_unjail_c'), type = 'success', duration = 5000 })
+                    -- Optionally notify the target player
+                    TriggerClientEvent('ox_lib:notify', TargetPlayer.PlayerData.source,
+                        { title = locale('sv_unjail_d'), description = locale('sv_unjail_e'), type = 'success', duration = 5000 })
+                else
+                    TriggerClientEvent('ox_lib:notify', src,
+                        { title = locale('sv_unjail_f'), description = locale('sv_unjail_g'), type = 'error', duration = 5000 })
+                end
             else
-                TriggerClientEvent('ox_lib:notify', src, { title = locale('sv_unjail_f'), description = locale('sv_unjail_g'), type = 'error', duration = 5000 })
+                TriggerClientEvent('ox_lib:notify', src,
+                    { title = locale('sv_unjail_f'), description = locale('sv_unjail_h'), type = 'error', duration = 5000 })
             end
         else
-            TriggerClientEvent('ox_lib:notify', src, { title = locale('sv_unjail_f'), description = locale('sv_unjail_h'), type = 'error', duration = 5000 })
+            -- Notify the player issuing the command if they're not a law enforcement officer
+            TriggerClientEvent('ox_lib:notify', src,
+                { title = locale('sv_unjail_f'), description = locale('sv_unjail_j'), type = 'error', duration = 5000 })
         end
-    else
-        -- Notify the player issuing the command if they're not a law enforcement officer
-        TriggerClientEvent('ox_lib:notify', src, { title = locale('sv_unjail_f'), description = locale('sv_unjail_j'), type = 'error', duration = 5000 })
-    end
-end)
+    end)
 
 ---------------------------
 -- lawman alert
@@ -115,19 +123,22 @@ end)
 -----------------------------------
 -- jail player command (law only)
 -----------------------------------
-RSGCore.Commands.Add('jail', locale('sv_jail'), {{name = 'id', help =  locale('sv_jail_a')}, {name = 'time', help = locale('sv_jail_b')}}, true, function(source, args)
-    local src = source
-    local Player = RSGCore.Functions.GetPlayer(src)
-    if Player.PlayerData.job.type == 'leo' then
-        local playerId = tonumber(args[1])
-        local time = tonumber(args[2])
-        if time > 0 then
-            jailPlayerByPlayer(playerId, src, time)
-        else
-            TriggerClientEvent('ox_lib:notify', src, {title = locale('sv_jail_c'), description = locale('sv_jail_d'), type = 'inform', duration = 5000 })
+RSGCore.Commands.Add('jail', locale('sv_jail'),
+    { { name = 'id', help = locale('sv_jail_a') }, { name = 'time', help = locale('sv_jail_b') } }, true,
+    function(source, args)
+        local src = source
+        local Player = RSGCore.Functions.GetPlayer(src)
+        if Player.PlayerData.job.type == 'leo' then
+            local playerId = tonumber(args[1])
+            local time = tonumber(args[2])
+            if time > 0 then
+                jailPlayerByPlayer(playerId, src, time)
+            else
+                TriggerClientEvent('ox_lib:notify', src,
+                    { title = locale('sv_jail_c'), description = locale('sv_jail_d'), type = 'inform', duration = 5000 })
+            end
         end
-    end
-end)
+    end)
 
 --------------------------------------------------------------------------------------------------
 -- jail player
@@ -136,7 +147,7 @@ function jailPlayerByPlayer(targetPlayer, byPlayer, minutes)
     local Player = RSGCore.Functions.GetPlayer(byPlayer)
     local OtherPlayer = RSGCore.Functions.GetPlayer(targetPlayer)
     local time = minutes
-    
+
     local currentDate = os.date('*t')
     if currentDate.day == 31 then
         currentDate.day = 30
@@ -147,7 +158,8 @@ function jailPlayerByPlayer(targetPlayer, byPlayer, minutes)
             OtherPlayer.Functions.SetMetaData('injail', time)
             OtherPlayer.Functions.SetMetaData('criminalrecord', { ['hasRecord'] = true, ['date'] = currentDate })
             TriggerClientEvent('rsg-lawman:client:sendtojail', OtherPlayer.PlayerData.source, time)
-            TriggerClientEvent('ox_lib:notify', byPlayer, {title =  locale('sv_injail') .. ' ' .. time, type = 'success', duration = 5000 })
+            TriggerClientEvent('ox_lib:notify', byPlayer,
+                { title = locale('sv_injail') .. ' ' .. time, type = 'success', duration = 5000 })
         end
     end
 end
@@ -188,7 +200,8 @@ RegisterNetEvent('rsg-lawman:server:cuffplayer', function(playerId, isSoftcuff)
         local CuffedPlayer = RSGCore.Functions.GetPlayer(playerId)
         if CuffedPlayer then
             if Player.Functions.GetItemByName('handcuffs') then
-                TriggerClientEvent('rsg-lawman:client:getcuffed', CuffedPlayer.PlayerData.source, Player.PlayerData.source, isSoftcuff)
+                TriggerClientEvent('rsg-lawman:client:getcuffed', CuffedPlayer.PlayerData.source,
+                    Player.PlayerData.source, isSoftcuff)
             end
         end
     end
@@ -237,7 +250,8 @@ RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
         local EscortPlayer = RSGCore.Functions.GetPlayer(playerId)
         if EscortPlayer then
             if (EscortPlayer.PlayerData.metadata['ishandcuffed'] or EscortPlayer.PlayerData.metadata['isdead']) then
-                TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source, Player.PlayerData.source)
+                TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source,
+                    Player.PlayerData.source)
             else
                 lib.notify({ title = locale('sv_handcuffedordead'), type = 'error', duration = 5000 })
             end
@@ -265,7 +279,7 @@ RegisterServerEvent('rsg-lawman:server:updateoutlawstatus', function(amount, rea
     local Player = RSGCore.Functions.GetPlayer(src)
     if not Player then return end
     local citizenid = Player.PlayerData.citizenid
-    local result = MySQL.query.await('SELECT outlawstatus FROM players WHERE citizenid = ?', { citizenid})
+    local result = MySQL.query.await('SELECT outlawstatus FROM players WHERE citizenid = ?', { citizenid })
     local newoutlawstatus = (result[1].outlawstatus + amount)
     MySQL.update('UPDATE players SET outlawstatus = ? WHERE citizenid = ?', { newoutlawstatus, citizenid })
 end)
