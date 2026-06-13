@@ -40,13 +40,6 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess, name)
             title = locale('cl_menu'),
             options = {
                 {
-                    title = locale('cl_boss'),
-                    description = locale('cl_boss_a'),
-                    icon = 'fa-solid fa-user-tie',
-                    event = 'rsg-bossmenu:client:mainmenu',
-                    arrow = true
-                },
-                {
                     title = locale('cl_duty'),
                     icon = 'fa-solid fa-shield-heart',
                     event = 'rsg-lawman:client:ToggleDuty',
