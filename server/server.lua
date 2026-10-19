@@ -78,6 +78,7 @@ RSGCore.Commands.Add('unjail', locale('sv_unjail'), { { name = 'id', help = loca
                 local TargetPlayer = RSGCore.Functions.GetPlayer(playerId)
                 if TargetPlayer then
                     -- Trigger the unjail event for the target player
+                    TargetPlayer.Functions.SetMetaData('injail', 0) -- server-side release so rsg-prison accepts it
                     TriggerClientEvent('rsg-prison:client:freedom', TargetPlayer.PlayerData.source)
                     -- Notify the player issuing the command
                     TriggerClientEvent('ox_lib:notify', src,
