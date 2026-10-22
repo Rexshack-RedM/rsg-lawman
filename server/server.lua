@@ -9,7 +9,7 @@ RSGCore.Commands.Add('testalert', locale('sv_test'), {}, false, function(source)
     local playerCoords = GetEntityCoords(GetPlayerPed(source))
     local text = locale('sv_test_a')
     TriggerClientEvent('rsg-lawman:client:lawmanAlert', src, playerCoords, text)
-end)
+end, 'admin')
 
 ------------------------------------------
 -- search players inventory
