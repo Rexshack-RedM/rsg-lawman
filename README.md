@@ -7,26 +7,25 @@
 ![License](https://img.shields.io/badge/license-GPL--3.0-green)
 
 > Full-featured law enforcement framework for RedM built on RSG Core.  
-> Provides arrest, search, alerts, and law office management systems with ox_lib menus and configurable prompts.
+> Provides arrest, search, alerts, and law office management systems with rsg-core notifications/locales and configurable prompts.
 
 ---
 
 ## 🛠️ Dependencies
 - [**rsg-core**](https://github.com/Rexshack-RedM/rsg-core) 🤠
-- [**ox_lib**](https://github.com/Rexshack-RedM/ox_lib) ⚙️ *(for menus and notifications)*
 - [**oxmysql**](https://github.com/overextended/oxmysql) 🗄️ *(for database storage)*
 - [**rsg-inventory**](https://github.com/Rexshack-RedM/rsg-inventory) 🎒 *(for player search & confiscation)*
 
 **Interaction:** Prompts are automatically created at each law office defined in `Config.LawOfficeLocations`.  
 **Keybind:** Default interaction key = `'J'`.  
-**Locales:** `locales/en.json, fr.json, es.json, it.json, el.json, pt-br.json` (loaded via `lib.locale()`).
+**Locales:** en, de, el, es, fr, ja, nl, pl, pt-br, ro (plus cs, it), loaded via rsg-core (`@rsg-core/shared/locale.lua`). Set language with `setr rsg:locale <code>`.
 
 ---
 
 ## ✨ Features (detailed)
 
 ### 🧭 Law Office Menu
-- Context-based menu using **ox_lib** for players with a **law job** (e.g., `vallaw`, `rholaw`, `blklaw`).
+- Built-in NUI menu (RDR2 leather & gold style) for players with a **law job** (e.g., `vallaw`, `rholaw`, `blklaw`).
 - Access is restricted to **on-duty lawmen**.
 - Opened through prompts created at configured coordinates.
 
@@ -89,16 +88,20 @@ Config.LawOfficeLocations = {
 
 ## 📂 Installation
 1. Place `rsg-lawman` inside your `resources/[rsg]` folder.
-2. Ensure **rsg-core**, **ox_lib**, **rsg-inventory**, and **oxmysql** are installed.
+2. Ensure **rsg-core**, **rsg-inventory**, and **oxmysql** are installed (ox_lib is no longer required).
 3. Adjust settings and locations in `config.lua`.
 4. Add to your `server.cfg`:
    ```cfg
-   ensure ox_lib
    ensure rsg-core
    ensure rsg-inventory
    ensure rsg-lawman
    ```
 5. Restart your server.
+
+---
+
+## 🎙️ Push-to-talk
+`Config.AllowPushToTalkWhileOpen` (default `true`) keeps push-to-talk working while the menu or jail dialog is open; other game controls are blocked. Controls are listed in `Config.PushToTalkControls`.
 
 ---
 

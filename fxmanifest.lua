@@ -3,10 +3,10 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 game 'rdr3'
 
 description 'rsg-lawman'
-version '3.0.1'
+version '3.1.0'
 
 shared_scripts {
-    '@ox_lib/init.lua',
+    '@rsg-core/shared/locale.lua',
     'config.lua',
 }
 
@@ -20,13 +20,17 @@ server_scripts {
     'server/versionchecker.lua',
 }
 
+ui_page 'html/index.html'
+
 files {
     'locales/*.json',
+    'html/index.html',
+    'html/style.css',
+    'html/script.js',
 }
 
 dependencies {
     'rsg-core',
-    'ox_lib',
 }
 
 lua54 'yes'

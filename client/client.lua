@@ -6,7 +6,96 @@ local lastHealth = 0
 local lastPedHealth = {}
 local lastAlertTime = 0
 local alertCooldown = 5000
-lib.locale()
+
+------------------------------------------
+-- NUI (menus / input) with push-to-talk support
+------------------------------------------
+local uiFocus = false
+menuActions = {}
+local inputPromise = nil
+
+local function applyNuiFocus(enable)
+    if enable then
+        SetNuiFocus(true, true)
+        if Config.AllowPushToTalkWhileOpen then
+            SetNuiFocusKeepInput(true)
+        end
+    else
+        SetNuiFocusKeepInput(false)
+        SetNuiFocus(false, false)
+    end
+end
+
+local function closeUI()
+    uiFocus = false
+    applyNuiFocus(false)
+end
+
+function openUI(data)
+    data.confirm = data.confirm or locale('cl_confirm')
+    data.cancel = data.cancel or locale('cl_cancel')
+    SendNUIMessage(data)
+    uiFocus = true
+    applyNuiFocus(true)
+end
+
+function inputDialog(title, label)
+    if inputPromise then return nil end
+    inputPromise = promise.new()
+    openUI({ action = 'openInput', title = title, label = label })
+    local value = Citizen.Await(inputPromise)
+    inputPromise = nil
+    return value
+end
+
+RegisterNUICallback('menuSelect', function(data, cb)
+    closeUI()
+    cb('ok')
+    local fn = menuActions[data and data.id]
+    menuActions = {}
+    if fn then fn() end
+end)
+
+RegisterNUICallback('inputSubmit', function(data, cb)
+    closeUI()
+    cb('ok')
+    local v = tonumber(data and data.value)
+    if v then v = math.floor(v) end
+    if v and v <= 0 then v = nil end
+    if inputPromise then inputPromise:resolve(v) end
+end)
+
+RegisterNUICallback('close', function(_, cb)
+    closeUI()
+    menuActions = {}
+    cb('ok')
+end)
+
+CreateThread(function()
+    while true do
+        if uiFocus and Config.AllowPushToTalkWhileOpen then
+            Wait(0)
+            DisableAllControlActions(0)
+            DisableAllControlActions(1)
+            DisableAllControlActions(2)
+            for _, ctrl in ipairs(Config.PushToTalkControls or {}) do
+                EnableControlAction(0, ctrl, true)
+                EnableControlAction(1, ctrl, true)
+                EnableControlAction(2, ctrl, true)
+            end
+        else
+            Wait(250)
+        end
+    end
+end)
+
+AddEventHandler('onResourceStop', function(res)
+    if res == GetCurrentResourceName() and uiFocus then
+        SendNUIMessage({ action = 'close' })
+        closeUI()
+        if inputPromise then inputPromise:resolve(nil) end
+    end
+end)
 
 ------------------------------------
 -- prompts and blips if needed
@@ -35,37 +124,23 @@ RegisterNetEvent('rsg-lawman:client:mainmenu', function(jobaccess, name)
     local PlayerData = RSGCore.Functions.GetPlayerData()
     local playerjob = PlayerData.job.name
     if playerjob == jobaccess then
-        lib.registerContext({
-            id = 'lawoffice_mainmenu',
+        menuActions = {
+            duty = function() TriggerEvent('rsg-lawman:client:ToggleDuty') end,
+            armoury = function() TriggerEvent('rsg-lawman:client:openarmoury', name) end,
+            storage = function() TriggerEvent('rsg-lawman:client:openstorage') end,
+        }
+        openUI({
+            action = 'openMenu',
             title = locale('cl_menu'),
+            subtitle = PlayerData.job.label or '',
             options = {
-                {
-                    title = locale('cl_duty'),
-                    icon = 'fa-solid fa-shield-heart',
-                    event = 'rsg-lawman:client:ToggleDuty',
-                    arrow = true
-                },
-                {
-                    title = locale('cl_armo'),
-                    description = locale('cl_armo_a'),
-                    icon = 'fa-solid fa-person-rifle',
-                    onSelect = function()
-                        TriggerEvent('rsg-lawman:client:openarmoury', name)
-                    end,
-                    arrow = true
-                },
-                {
-                    title = locale('cl_trash'),
-                    description = locale('cl_trash_a'),
-                    icon = 'fa-solid fa-box-archive',
-                    event = 'rsg-lawman:client:openstorage',
-                    arrow = true
-                },
+                { id = 'duty', title = locale('cl_duty'), icon = 'fa-solid fa-shield-heart' },
+                { id = 'armoury', title = locale('cl_armo'), description = locale('cl_armo_a'), icon = 'fa-solid fa-person-rifle' },
+                { id = 'storage', title = locale('cl_trash'), description = locale('cl_trash_a'), icon = 'fa-solid fa-box-archive' },
             }
         })
-        lib.showContext("lawoffice_mainmenu")
     else
-        lib.notify({ title = locale('cl_no_job'), type = 'error', duration = 5000 })
+        RSGCore.Functions.Notify({ title = locale('cl_no_job'), type = 'error', duration = 5000 })
     end
 end)
 
@@ -78,7 +153,7 @@ AddEventHandler('rsg-lawman:client:openarmoury', function(id)
         if PlayerData.job.type == "leo" and PlayerData.job.grade.level >= Config.ArmouryAccessGrade then
             TriggerServerEvent('rsg-shops:server:openstore', 'armoury', 'armoury', locale('cl_shop'))
         else
-            lib.notify({ title = locale('cl_no_rank'), type = 'error', duration = 7000 })
+            RSGCore.Functions.Notify({ title = locale('cl_no_rank'), type = 'error', duration = 7000 })
         end
     end)
 end)
@@ -92,31 +167,23 @@ RegisterNetEvent('rsg-lawman:client:jailplayer', function(playerId, time)
         TriggerServerEvent('rsg-lawman:server:jailplayer', playerId, tonumber(time))
     else
         -- Jail closest player
-        if not IsPedRagdoll(cache.ped) then
+        if not IsPedRagdoll(PlayerPedId()) then
             local distanceRequirement = 1.5
 
             local player, distance = RSGCore.Functions.GetClosestPlayer()
             if player == -1 or distance >= distanceRequirement then
-                lib.notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
+                RSGCore.Functions.Notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
                 return
             end
 
             local playerId = GetPlayerServerId(player)
-            local input = lib.inputDialog(locale('jail_player_header', playerId), {
-                {
-                    type = 'input',
-                    label = locale('jail_player_time_label'),
-                    required = true,
-                },
-            })
-            if not input or not input[1] then
+            local time = inputDialog(locale('jail_player_header', playerId), locale('jail_player_time_label'))
+            if not time then
                 return
             end
-
-            local time = tonumber(input[1])
             local player, distance = RSGCore.Functions.GetClosestPlayer()
             if player == -1 or distance >= distanceRequirement or GetPlayerServerId(player) ~= playerId then
-                lib.notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
+                RSGCore.Functions.Notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
                 return
             end
 
@@ -129,8 +196,8 @@ RegisterNetEvent('rsg-lawman:client:sendtojail', function(time)
     TriggerServerEvent('rsg-lawman:server:sethandcuffstatus', false)
     isHandcuffed = false
     isEscorted = false
-    ClearPedTasks(cache.ped)
-    DetachEntity(cache.ped, true, false)
+    ClearPedTasks(PlayerPedId())
+    DetachEntity(PlayerPedId(), true, false)
     TriggerEvent('rsg-prison:client:Enter', time)
 end)
 
@@ -142,7 +209,7 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
         if PlayerData.job.type == "leo" then
             local blip = BlipAddForCoords(joaat('BLIP_STYLE_CREATOR_DEFAULT'), coords.x, coords.y, coords.z)
             local blip2 = BlipAddForCoords(joaat('BLIP_STYLE_COP_PERSISTENT'), coords.x, coords.y, coords.z)
-            local blipText = locale('cl_alert') .. ' - %{text}', { value = text }
+            local blipText = locale('cl_alert') .. ' - ' .. tostring(text)
             SetBlipSprite(blip, joaat('blip_ambient_law'))
             SetBlipSprite(blip2, joaat('blip_overlay_ring'))
             BlipAddModifier(blip, joaat('BLIP_MODIFIER_AREA_PULSE'))
@@ -164,13 +231,13 @@ RegisterNetEvent('rsg-lawman:client:lawmanAlert', function(coords, text)
             end
 
             -- send notifcation
-            lib.notify({ title = text, type = 'inform', duration = 7000 })
+            RSGCore.Functions.Notify({ title = text, type = 'inform', duration = 7000 })
 
             CreateThread(function()
                 while timer ~= 0 do
                     Wait(180 * 4)
 
-                    local pcoord = GetEntityCoords(cache.ped)
+                    local pcoord = GetEntityCoords(PlayerPedId())
                     local distance = #(coords - pcoord)
                     timer = timer - 1
 
@@ -213,23 +280,23 @@ end)
 -- handcuff player
 ------------------------------------------
 RegisterNetEvent('rsg-lawman:client:cuffplayer', function()
-    if not IsPedRagdoll(cache.ped) then
+    if not IsPedRagdoll(PlayerPedId()) then
         local player, distance = RSGCore.Functions.GetClosestPlayer()
         if player ~= -1 and distance < 1.5 then
             local result = RSGCore.Functions.HasItem('handcuffs')
             if result then
                 local playerId = GetPlayerServerId(player)
-                if not IsPedInAnyVehicle(GetPlayerPed(player)) and not IsPedInAnyVehicle(cache.ped) then
+                if not IsPedInAnyVehicle(GetPlayerPed(player)) and not IsPedInAnyVehicle(PlayerPedId()) then
                     TriggerServerEvent('rsg-lawman:server:cuffplayer', playerId, false)
                     -- HandCuffAnimation()
                 else
-                    lib.notify({ title = locale('cl_failed'), description = locale('cl_failed_a'), type = 'error', duration = 5000 })
+                    RSGCore.Functions.Notify({ title = locale('cl_failed'), description = locale('cl_failed_a'), type = 'error', duration = 5000 })
                 end
             else
-                lib.notify({ title = locale('cl_handcuffs'), description = locale('cl_handcuffs_a'), type = 'error', duration = 5000 })
+                RSGCore.Functions.Notify({ title = locale('cl_handcuffs'), description = locale('cl_handcuffs_a'), type = 'error', duration = 5000 })
             end
         else
-            lib.notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
+            RSGCore.Functions.Notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
         end
     else
         Wait(2000)
@@ -244,33 +311,33 @@ RegisterNetEvent('rsg-lawman:client:getcuffed', function(playerId, isSoftcuff)
         isHandcuffed = true
         TriggerServerEvent('rsg-lawman:server:sethandcuffstatus', true)
         TriggerServerEvent('InteractSound_SV:PlayWithinDistance', 5, 'cuff', 0.6)
-        ClearPedTasksImmediately(cache.ped)
-        if GetPedCurrentHeldWeapon(cache.ped) ~= joaat("WEAPON_UNARMED") then
-            SetCurrentPedWeapon(cache.ped, `WEAPON_UNARMED`, true)
+        ClearPedTasksImmediately(PlayerPedId())
+        if GetPedCurrentHeldWeapon(PlayerPedId()) ~= joaat("WEAPON_UNARMED") then
+            SetCurrentPedWeapon(PlayerPedId(), `WEAPON_UNARMED`, true)
         end
         if not isSoftcuff then
             cuffType = 16
-            lib.notify({ title = locale('cl_cuffed'), type = 'inform', duration = 5000 })
+            RSGCore.Functions.Notify({ title = locale('cl_cuffed'), type = 'inform', duration = 5000 })
         else
             cuffType = 49
-            lib.notify({ title = locale('cl_cuffed'), description = locale('cl_cuffed_a'), type = 'inform', duration = 5000 })
+            RSGCore.Functions.Notify({ title = locale('cl_cuffed'), description = locale('cl_cuffed_a'), type = 'inform', duration = 5000 })
         end
     else
         isHandcuffed = false
         isEscorted = false
         TriggerEvent('hospital:client:isEscorted', isEscorted)
-        DetachEntity(cache.ped, true, false)
+        DetachEntity(PlayerPedId(), true, false)
         TriggerServerEvent('rsg-lawman:server:sethandcuffstatus', false)
         TriggerServerEvent('InteractSound_SV:PlayWithinDistance', 5, 'uncuff', 0.6)
-        ClearPedTasksImmediately(cache.ped)
-        SetEnableHandcuffs(cache.ped, false)
-        DisablePlayerFiring(cache.ped, false)
-        SetPedCanPlayGestureAnims(cache.ped, true)
+        ClearPedTasksImmediately(PlayerPedId())
+        SetEnableHandcuffs(PlayerPedId(), false)
+        DisablePlayerFiring(PlayerPedId(), false)
+        SetPedCanPlayGestureAnims(PlayerPedId(), true)
         DisplayRadar(true)
         if cuffType == 49 then
-            FreezeEntityPosition(cache.ped, false)
+            FreezeEntityPosition(PlayerPedId(), false)
         end
-        lib.notify({ title = locale('cl_uncuffed'), type = 'inform', duration = 5000 })
+        RSGCore.Functions.Notify({ title = locale('cl_uncuffed'), type = 'inform', duration = 5000 })
     end
 end)
 
@@ -308,18 +375,18 @@ CreateThread(function()
         end
 
         if cuffType == 16 and isHandcuffed then -- soft cuff
-            SetEnableHandcuffs(cache.ped, true)
-            DisablePlayerFiring(cache.ped, true)
-            SetPedCanPlayGestureAnims(cache.ped, false)
+            SetEnableHandcuffs(PlayerPedId(), true)
+            DisablePlayerFiring(PlayerPedId(), true)
+            SetPedCanPlayGestureAnims(PlayerPedId(), false)
             DisplayRadar(false)
         end
 
         if cuffType == 49 and isHandcuffed then -- hard cuff
-            SetEnableHandcuffs(cache.ped, true)
-            DisablePlayerFiring(cache.ped, true)
-            SetPedCanPlayGestureAnims(cache.ped, false)
+            SetEnableHandcuffs(PlayerPedId(), true)
+            DisablePlayerFiring(PlayerPedId(), true)
+            SetPedCanPlayGestureAnims(PlayerPedId(), false)
             DisplayRadar(false)
-            FreezeEntityPosition(cache.ped, true)
+            FreezeEntityPosition(PlayerPedId(), true)
         end
 
         if not isHandcuffed and not isEscorted then
@@ -351,7 +418,7 @@ RegisterNetEvent('rsg-lawman:client:escortplayer', function()
             TriggerServerEvent("rsg-lawman:server:escortplayer", playerId)
         end
     else
-        lib.notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
+        RSGCore.Functions.Notify({ title = locale('cl_nearby'), type = 'error', duration = 5000 })
     end
 end)
 
@@ -366,13 +433,13 @@ RegisterNetEvent('rsg-lawman:client:getescorted', function(playerId)
                 TriggerServerEvent('rsg-lawman:server:setescortstatus', true)
                 draggerId = playerId
                 local dragger = GetPlayerPed(GetPlayerFromServerId(playerId))
-                SetEntityCoords(cache.ped, GetOffsetFromEntityInWorldCoords(dragger, 0.0, 0.45, 0.0))
-                AttachEntityToEntity(cache.ped, dragger, 11816, 0.45, 0.45, 0.0, 0.0, 0.0, 0.0, false, false, false,
+                SetEntityCoords(PlayerPedId(), GetOffsetFromEntityInWorldCoords(dragger, 0.0, 0.45, 0.0))
+                AttachEntityToEntity(PlayerPedId(), dragger, 11816, 0.45, 0.45, 0.0, 0.0, 0.0, 0.0, false, false, false,
                     false, 2, true)
             else
                 isEscorted = false
                 TriggerServerEvent('rsg-lawman:server:setescortstatus', false)
-                DetachEntity(cache.ped, true, false)
+                DetachEntity(PlayerPedId(), true, false)
             end
         end
     end)
@@ -386,28 +453,28 @@ RegisterNetEvent('rsg-lawman:client:lawbadge', function()
         local jobname = PlayerData.job.name
         if Config.LawJobs[jobname] then
             if badge == false then
-                if not IsPedMale(cache.ped) then                                                       -- female
-                    Citizen.InvokeNative(0xD3A7B003ED343FD9, cache.ped, 0x0929677D, true, true, true)  -- ApplyShopItemToPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false)             -- UpdatePedVariation
+                if not IsPedMale(PlayerPedId()) then                                                       -- female
+                    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), 0x0929677D, true, true, true)  -- ApplyShopItemToPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false)             -- UpdatePedVariation
                 else                                                                                   -- male
-                    Citizen.InvokeNative(0xD3A7B003ED343FD9, cache.ped, 0xDB4C451D, true, false, true) -- ApplyShopItemToPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false)             -- UpdatePedVariation
+                    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), 0xDB4C451D, true, false, true) -- ApplyShopItemToPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false)             -- UpdatePedVariation
                 end
-                lib.notify({ title = locale('cl_badge_on'), type = 'inform', position = 'center-right', duration = 5000 })
+                RSGCore.Functions.Notify({ title = locale('cl_badge_on'), type = 'inform', position = 'center-right', duration = 5000 })
                 badge = true
             else
-                if not IsPedMale(cache.ped) then                                           -- female
-                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, cache.ped, 0x0929677D, 0, 0)  -- RemoveShopItemFromPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
+                if not IsPedMale(PlayerPedId()) then                                           -- female
+                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, PlayerPedId(), 0x0929677D, 0, 0)  -- RemoveShopItemFromPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
                 else                                                                       -- male
-                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, cache.ped, 0xDB4C451D, 0, 0)  -- RemoveShopItemFromPed
-                    Citizen.InvokeNative(0xCC8CA3E88256E58F, cache.ped, 0, 1, 1, 1, false) -- UpdatePedVariation
+                    Citizen.InvokeNative(0x0D7FFA1B2F69ED82, PlayerPedId(), 0xDB4C451D, 0, 0)  -- RemoveShopItemFromPed
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false) -- UpdatePedVariation
                 end
-                lib.notify({ title = locale('cl_badge_off'), type = 'inform', position = 'center-right', duration = 5000 })
+                RSGCore.Functions.Notify({ title = locale('cl_badge_off'), type = 'inform', position = 'center-right', duration = 5000 })
                 badge = false
             end
         else
-            lib.notify({ title = locale('cl_only_law'), type = 'inform', position = 'center-right', duration = 5000 })
+            RSGCore.Functions.Notify({ title = locale('cl_only_law'), type = 'inform', position = 'center-right', duration = 5000 })
         end
     end)
 end)
@@ -416,7 +483,7 @@ end)
 -- search other players inventory
 ------------------------------------------
 RegisterNetEvent('rsg-lawman:client:searchplayer', function()
-    if not IsPedRagdoll(cache.ped) then
+    if not IsPedRagdoll(PlayerPedId()) then
         local player, distance = RSGCore.Functions.GetClosestPlayer()
         if player ~= -1 and distance < Config.SearchDistance then
             local playerPed = GetPlayerPed(player)
@@ -429,13 +496,13 @@ RegisterNetEvent('rsg-lawman:client:searchplayer', function()
             if isdead or cuffed or hogtied or lassoed or ragdoll or IsEntityPlayingAnim(playerPed, "script_proc@robberies@homestead@lonnies_shack@deception", "hands_up_loop", 3) then
                 TriggerServerEvent('rsg-lawman:server:SearchPlayer')
             else
-                lib.notify({ title = locale('cl_search'), type = 'inform', position = 'center-right', duration = 5000 })
+                RSGCore.Functions.Notify({ title = locale('cl_search'), type = 'inform', position = 'center-right', duration = 5000 })
             end
         else
-            lib.notify({ title = locale('cl_nearby'), type = 'inform', position = 'center-right', duration = 5000 })
+            RSGCore.Functions.Notify({ title = locale('cl_nearby'), type = 'inform', position = 'center-right', duration = 5000 })
         end
     else
-        lib.notify({ title = locale('cl_no_be_able'), type = 'inform', position = 'center-right', duration = 5000 })
+        RSGCore.Functions.Notify({ title = locale('cl_no_be_able'), type = 'inform', position = 'center-right', duration = 5000 })
     end
 end)
 
@@ -452,8 +519,8 @@ RegisterNetEvent('rsg-lawman:client:openstorage', function()
 end)
 
 CreateThread(function()
-    if cache.ped then
-        lastHealth = GetEntityHealth(cache.ped)
+    if PlayerPedId() then
+        lastHealth = GetEntityHealth(PlayerPedId())
     end
 end)
 
@@ -508,14 +575,14 @@ CreateThread(function()
     while true do
         Wait(1000) -- Check every second
 
-        if cache.ped and DoesEntityExist(cache.ped) then
-            local currentHealth = GetEntityHealth(cache.ped)
+        if PlayerPedId() and DoesEntityExist(PlayerPedId()) then
+            local currentHealth = GetEntityHealth(PlayerPedId())
 
             -- Detect if player just died
             if currentHealth <= 0 and lastHealth > 0 then
-                local coords = GetEntityCoords(cache.ped)
+                local coords = GetEntityCoords(PlayerPedId())
                 local location = GetLocationName(coords)
-                local killer = GetPedSourceOfDeath(cache.ped)
+                local killer = GetPedSourceOfDeath(PlayerPedId())
 
                 -- Ensure killer is valid and not an animal
                 local alertText = locale('cl_lang_1') .. location
@@ -549,12 +616,12 @@ CreateThread(function()
     while true do
         Wait(1000)
 
-        if cache.ped and DoesEntityExist(cache.ped) then
-            local playerCoords = GetEntityCoords(cache.ped)
+        if PlayerPedId() and DoesEntityExist(PlayerPedId()) then
+            local playerCoords = GetEntityCoords(PlayerPedId())
             local peds = GetGamePool('CPed')
 
             for _, ped in ipairs(peds) do
-                if ped ~= cache.ped and not IsPedAPlayer(ped) and not IsEntityAnimal(ped) then
+                if ped ~= PlayerPedId() and not IsPedAPlayer(ped) and not IsEntityAnimal(ped) then
                     local currentHealth = GetEntityHealth(ped)
                     local lastPedHealthValue = lastPedHealth[ped] or currentHealth
 
@@ -571,7 +638,7 @@ CreateThread(function()
                             local alertText = locale('cl_lang_4') .. location
 
                             -- Add context if killed by player
-                            if killer == cache.ped then
+                            if killer == PlayerPedId() then
                                 alertText = locale('cl_lang_5') .. location
                             end
 

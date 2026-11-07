@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="root" class="hidden">
+  <div id="menu" class="panel hidden">
+    <div class="header">
+      <div class="circle-btn ghost"></div>
+      <div class="titles"><div id="menu-title" class="title"></div><div id="menu-sub" class="subtitle"></div></div>
+      <div class="circle-btn" id="menu-close"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="divider"><span>✦</span></div>
+    <div id="menu-list" class="list"></div>
+  </div>
+  <div id="input" class="panel modal hidden">
+    <div id="input-title" class="title small"></div>
+    <div class="ink-divider"></div>
+    <label id="input-label" class="label"></label>
+    <input id="input-value" type="text" inputmode="numeric" autocomplete="off">
+    <div class="actions">
+      <button class="wood-btn muted" id="input-cancel"></button>
+      <button class="wood-btn" id="input-confirm"></button>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

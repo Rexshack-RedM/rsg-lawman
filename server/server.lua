@@ -1,5 +1,4 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
-lib.locale()
 
 ------------------------------------------
 -- law test alert
@@ -29,10 +28,10 @@ RegisterNetEvent('rsg-lawman:server:SearchPlayer', function()
         local SearchedPlayer = RSGCore.Functions.GetPlayer(tonumber(player))
         if not SearchedPlayer then return end
         exports['rsg-inventory']:OpenInventoryById(src, tonumber(player))
-        TriggerClientEvent('ox_lib:notify', player,
+        TriggerClientEvent('RSGCore:Client:Notify', player,
             { title = locale('sv_info'), description = locale('sv_info_a'), type = 'info', duration = 7000 })
     else
-        TriggerClientEvent('ox_lib:notify', src,
+        TriggerClientEvent('RSGCore:Client:Notify', src,
             { title = locale('sv_error'), description = locale('sv_error_a'), type = 'error', duration = 7000 })
     end
 end)
@@ -48,7 +47,7 @@ RSGCore.Commands.Add('lawbadge', locale('sv_lawbadge'), {}, false, function(sour
     if onduty and Config.LawJobs[jobname] then
         TriggerClientEvent('rsg-lawman:client:lawbadge', src)
     else
-        TriggerClientEvent('ox_lib:notify', src, { title = locale('sv_need_duty'), type = 'error', duration = 5000 })
+        TriggerClientEvent('RSGCore:Client:Notify', src, { title = locale('sv_need_duty'), type = 'error', duration = 5000 })
     end
 end)
 
@@ -81,22 +80,22 @@ RSGCore.Commands.Add('unjail', locale('sv_unjail'), { { name = 'id', help = loca
                     TargetPlayer.Functions.SetMetaData('injail', 0) -- server-side release so rsg-prison accepts it
                     TriggerClientEvent('rsg-prison:client:freedom', TargetPlayer.PlayerData.source)
                     -- Notify the player issuing the command
-                    TriggerClientEvent('ox_lib:notify', src,
+                    TriggerClientEvent('RSGCore:Client:Notify', src,
                         { title = locale('sv_unjail_b'), description = locale('sv_unjail_c'), type = 'success', duration = 5000 })
                     -- Optionally notify the target player
-                    TriggerClientEvent('ox_lib:notify', TargetPlayer.PlayerData.source,
+                    TriggerClientEvent('RSGCore:Client:Notify', TargetPlayer.PlayerData.source,
                         { title = locale('sv_unjail_d'), description = locale('sv_unjail_e'), type = 'success', duration = 5000 })
                 else
-                    TriggerClientEvent('ox_lib:notify', src,
+                    TriggerClientEvent('RSGCore:Client:Notify', src,
                         { title = locale('sv_unjail_f'), description = locale('sv_unjail_g'), type = 'error', duration = 5000 })
                 end
             else
-                TriggerClientEvent('ox_lib:notify', src,
+                TriggerClientEvent('RSGCore:Client:Notify', src,
                     { title = locale('sv_unjail_f'), description = locale('sv_unjail_h'), type = 'error', duration = 5000 })
             end
         else
             -- Notify the player issuing the command if they're not a law enforcement officer
-            TriggerClientEvent('ox_lib:notify', src,
+            TriggerClientEvent('RSGCore:Client:Notify', src,
                 { title = locale('sv_unjail_f'), description = locale('sv_unjail_j'), type = 'error', duration = 5000 })
         end
     end)
@@ -135,7 +134,7 @@ RSGCore.Commands.Add('jail', locale('sv_jail'),
             if time > 0 then
                 jailPlayerByPlayer(playerId, src, time)
             else
-                TriggerClientEvent('ox_lib:notify', src,
+                TriggerClientEvent('RSGCore:Client:Notify', src,
                     { title = locale('sv_jail_c'), description = locale('sv_jail_d'), type = 'inform', duration = 5000 })
             end
         end
@@ -159,7 +158,7 @@ function jailPlayerByPlayer(targetPlayer, byPlayer, minutes)
             OtherPlayer.Functions.SetMetaData('injail', time)
             OtherPlayer.Functions.SetMetaData('criminalrecord', { ['hasRecord'] = true, ['date'] = currentDate })
             TriggerClientEvent('rsg-lawman:client:sendtojail', OtherPlayer.PlayerData.source, time)
-            TriggerClientEvent('ox_lib:notify', byPlayer,
+            TriggerClientEvent('RSGCore:Client:Notify', byPlayer,
                 { title = locale('sv_injail') .. ' ' .. time, type = 'success', duration = 5000 })
         end
     end
@@ -254,7 +253,7 @@ RegisterNetEvent('rsg-lawman:server:escortplayer', function(playerId)
                 TriggerClientEvent('rsg-lawman:client:getescorted', EscortPlayer.PlayerData.source,
                     Player.PlayerData.source)
             else
-                lib.notify({ title = locale('sv_handcuffedordead'), type = 'error', duration = 5000 })
+                TriggerClientEvent('RSGCore:Client:Notify', Player.PlayerData.source, { title = locale('sv_handcuffedordead'), type = 'error', duration = 5000 })
             end
         end
     end
