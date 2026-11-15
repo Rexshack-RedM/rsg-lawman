@@ -21,6 +21,8 @@
 - `rsg-lawman:client:lawmanAlert (coords, text)` — map alert blip for on-duty `leo` job types.
 - `rsg-lawman:client:getescorted (draggerSrc)` — attach/detach escorted player.
 
+- `rsg-lawman:server:lawmanAlert (text, coords)` — sends an alert to on-duty `leo` players. Server-side: text must be a string (cut to 150 chars), at most one alert per player every 4s, and the position falls back to the sender's server-side position if missing or more than 250 units away.
+
 ## Commands
 `/testalert`, `/searchplayer`, `/lawbadge`, `/jail <id> <time>`, `/unjail <id>`, `/cuff`, `/escort`.
 

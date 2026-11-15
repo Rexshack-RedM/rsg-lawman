@@ -103,21 +103,40 @@ RSGCore.Commands.Add('unjail', locale('sv_unjail'), { { name = 'id', help = loca
 ---------------------------
 -- lawman alert
 ---------------------------
+local alertLast = {}               -- [src] = GetGameTimer() of the last accepted alert
+local ALERT_MIN_GAP = 4000         -- ms; slightly below the 5s client cooldown so legit alerts always pass
+local ALERT_MAX_TEXT = 150         -- characters
+local ALERT_MAX_DIST = 250.0       -- alert position may not be further than this from the sender
+
 RegisterNetEvent('rsg-lawman:server:lawmanAlert', function(text, coords)
     local src = source
-    local ped = GetPlayerPed(src)
-    local pedcoords = GetEntityCoords(ped)
-    local players = RSGCore.Functions.GetRSGPlayers()
 
-    for _, v in pairs(players) do
+    -- the client supplies the text and position, so never trust them as sent
+    if type(text) ~= 'string' or text == '' then return end
+    text = text:sub(1, ALERT_MAX_TEXT)
+
+    local now = GetGameTimer()
+    if alertLast[src] and now - alertLast[src] < ALERT_MIN_GAP then return end
+    alertLast[src] = now
+
+    local pedcoords = GetEntityCoords(GetPlayerPed(src))
+    local alertCoords = pedcoords
+    if type(coords) == 'vector3' then
+        alertCoords = coords
+    elseif type(coords) == 'table' and type(coords.x) == 'number' and type(coords.y) == 'number' and type(coords.z) == 'number' then
+        alertCoords = vector3(coords.x, coords.y, coords.z)
+    end
+    if #(alertCoords - pedcoords) > ALERT_MAX_DIST then alertCoords = pedcoords end
+
+    for _, v in pairs(RSGCore.Functions.GetRSGPlayers()) do
         if v.PlayerData.job.type == 'leo' and v.PlayerData.job.onduty then
-            if coords then
-                TriggerClientEvent('rsg-lawman:client:lawmanAlert', v.PlayerData.source, coords, text)
-            else
-                TriggerClientEvent('rsg-lawman:client:lawmanAlert', v.PlayerData.source, pedcoords, text)
-            end
+            TriggerClientEvent('rsg-lawman:client:lawmanAlert', v.PlayerData.source, alertCoords, text)
         end
     end
+end)
+
+AddEventHandler('playerDropped', function()
+    alertLast[source] = nil
 end)
 
 -----------------------------------
