@@ -27,7 +27,7 @@
 `/testalert`, `/searchplayer`, `/lawbadge`, `/jail <id> <time>`, `/unjail <id>`, `/cuff`, `/escort`.
 
 ## Locales
-Keys live in `locales/*.json`. Required languages: en, de, el, es, fr, ja, nl, pl, pt-br, ro. `jail_player_header` takes the player id (`%s`).
+Keys live in `locales/*.json`. Required languages: en, de, el, es, fr, ja, nl, pl, pt-br, ro, ru. `jail_player_header` takes the player id (`%s`).
 
 ## Changelog
 - 3.1.0 — Replaced the ox_lib context menu and input dialog with built-in NUI; removed ox_lib entirely; added push-to-talk config; added `cl_confirm`/`cl_cancel` locale keys.
@@ -132,6 +132,6 @@ TriggerClientEvent('rsg-lawman:client:mainmenu', source, jobaccess, name)
 
 ### Locales
 
-Language files in `locales/`: `cs`, `de`, `el`, `en`, `es`, `fr`, `it`, `ja`, `nl`, `pl`, `pt-br`, `ro`. Set the language with `setr rsg:locale "en"`.
+Language files in `locales/`: `cs`, `de`, `el`, `en`, `es`, `fr`, `it`, `ja`, `nl`, `pl`, `pt-br`, `ro`, `ru`. Set the language with `setr rsg:locale "en"`.
 
 <!-- END AUTO-REFERENCE -->

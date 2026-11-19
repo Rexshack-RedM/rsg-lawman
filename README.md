@@ -18,7 +18,7 @@
 
 **Interaction:** Prompts are automatically created at each law office defined in `Config.LawOfficeLocations`.  
 **Keybind:** Default interaction key = `'J'`.  
-**Locales:** en, de, el, es, fr, ja, nl, pl, pt-br, ro (plus cs, it), loaded via rsg-core (`@rsg-core/shared/locale.lua`). Set language with `setr rsg:locale <code>`.
+**Locales:** en, de, el, es, fr, ja, nl, pl, pt-br, ro, ru (plus cs, it), loaded via rsg-core (`@rsg-core/shared/locale.lua`). Set language with `setr rsg:locale <code>`.
 
 ---
 
@@ -113,7 +113,7 @@ Config.LawOfficeLocations = {
 ---
 
 ## 🌍 Locales
-Provided in `locales/`: `en`, `fr`, `es`, `it`, `el`, `pt-br`.  
+Provided in `locales/`: `en`, `fr`, `es`, `it`, `el`, `pt-br`, `ru`.  
 Fully localized prompts, menus, and notifications.
 
 ---
